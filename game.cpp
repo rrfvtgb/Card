@@ -55,6 +55,8 @@ void Game::dataReady(){
 
         if(cmdID == "SAY"){
             emit receiveMessage(subCmd.right(subCmd.length() - cmdID.size() - 1));
+        }else{
+            qDebug() << "Unknow command "<< subCmd;
         }
         //ui->textEdit->append(subCmd);
     }

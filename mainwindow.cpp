@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QTcpSocket>
 #include <QStringListModel>
+#include <QScrollBar>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -15,11 +16,34 @@ MainWindow::MainWindow(QWidget *parent) :
     mainUI(new Ui::MainWindow),
     gameUI(new Ui::GameLayout),
     socket(new QTcpSocket(this)),
-    game(new Game)
+    game(new Game),
+    chat(new QStringListModel(this))
 {
-    mainUI->setupUi(this);
-
     game->setSocket(socket);
+
+    this->resetUI();
+}
+
+MainWindow::~MainWindow()
+{
+    delete socket;
+    delete game;
+    delete mainUI;
+    delete gameUI;
+}
+
+void MainWindow::disconnectUI(){
+    disconnect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
+    disconnect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
+
+    disconnect(mainUI->pushButton, SIGNAL(pressed()), this, SLOT(tryConnect()));
+
+    disconnect(game, SIGNAL(receiveMessage(QString)), this, SLOT(receiveMessage(QString)));
+}
+
+void MainWindow::resetUI(){
+    mainUI->setupUi(this);
+    this->disconnectUI();
 
     // SIGNAL / SLOT
     connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
@@ -30,51 +54,40 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(game, SIGNAL(receiveMessage(QString)), this, SLOT(receiveMessage(QString)));
 }
 
-MainWindow::~MainWindow()
-{
-    delete mainUI;
-    delete gameUI;
-    delete game;
-    delete socket;
-}
-
-void MainWindow::resetUI(){
-    mainUI->setupUi(this);
-}
-
 void MainWindow::onConnect(){
     mainUI->pushButton->setEnabled(true);
 
     centralWidget()->setParent(0);
 
     QWidget* centralWidget = new QWidget(this);
-    centralWidget->setObjectName(QStringLiteral("centralWidget"));
+    centralWidget->setObjectName(QString("centralWidget"));
     setCentralWidget(centralWidget);
 
     qDebug() << "Init game UI";
     gameUI->setupUi(centralWidget);
 
-    QStringListModel* model = new QStringListModel(this);
     QStringList list;
 
     list << "Connected !";
 
-    model->setStringList(list);
-    gameUI->chat->setModel(model);
+    chat->setStringList(list);
+    gameUI->chat->setModel(chat);
 
     connect(gameUI->message, SIGNAL(returnPressed()), this, SLOT(readMessage()));
 }
 
 void MainWindow::tryConnect(){
-    QUrl url= QUrl::fromUserInput(mainUI->lineEdit->displayText());
+    if(mainUI->pushButton->isEnabled()){
+        QUrl url= QUrl::fromUserInput(mainUI->lineEdit->displayText());
 
-    mainUI->pushButton->setEnabled(false);
+        mainUI->pushButton->setEnabled(false);
 
-    socket->abort();
-    socket->connectToHost(url.host(), url.port(6112));
+        socket->abort();
+        socket->connectToHost(url.host(), url.port(6112));
 
-    qDebug()<< "Host " << url.host();
-    qDebug()<< "Port " << url.port(6112);
+        qDebug()<< "Host " << url.host();
+        qDebug()<< "Port " << url.port(6112);
+    }
 }
 
 void MainWindow::displayError(QAbstractSocket::SocketError socketError)
@@ -117,9 +130,17 @@ void MainWindow::readMessage(){
 }
 
 void MainWindow::receiveMessage(QString message){
-    QStringListModel* model = dynamic_cast<QStringListModel*>(gameUI->chat->model());
-    model->insertRow(model->rowCount());
+    QScrollBar* sb = gameUI->chat->verticalScrollBar();
+    bool t = (sb->value() == sb->maximum());
 
-    QModelIndex index = model->index(model->rowCount()-1);
-    model->setData(index, message);
+    chat->insertRow(chat->rowCount());
+
+    QModelIndex index = chat->index(chat->rowCount()-1);
+    chat->setData(index, message);
+
+    gameUI->chat->repaint();
+
+    if(t){
+        sb->setValue(sb->maximum());
+    }
 }

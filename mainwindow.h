@@ -12,6 +12,7 @@ class GameLayout;
 
 class QTcpSocket;
 class Game;
+class QStringListModel;
 
 class MainWindow : public QMainWindow
 {
@@ -21,12 +22,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void disconnectUI();
 private:
     Ui::MainWindow *mainUI;
     Ui::GameLayout *gameUI;
 
     QTcpSocket* socket;
     Game *game;
+
+    QStringListModel* chat;
 
 public slots:
     void tryConnect();
