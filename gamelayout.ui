@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GameLayout</class>
+ <widget class="QWidget" name="GameLayout">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="creepDisplay">
+     <item>
+      <widget class="QListView" name="P2Creep"/>
+     </item>
+     <item>
+      <widget class="QListView" name="P1Creep"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QListView" name="cartDisplay"/>
+   </item>
+   <item>
+    <widget class="QListView" name="chat"/>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="message"/>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
