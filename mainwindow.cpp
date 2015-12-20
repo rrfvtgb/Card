@@ -11,6 +11,7 @@
 
 #include "game.h"
 #include "card.h"
+#include "cardwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -43,6 +44,24 @@ void MainWindow::disconnectUI(){
     disconnect(game, SIGNAL(newCard(Card*)), this, SLOT(addNewCard(Card*)));
 }
 
+CardWidget *MainWindow::getCardWidgetByType(QString type)
+{
+    QHash<QString, CardWidget*>::iterator it = this->cardUI.find(type);
+    CardWidget* c;
+
+    if(it != this->cardUI.end()){ // Card exist
+        c = it.value();
+
+    }else{ // Insert new card
+        c = new CardWidget();
+
+        this->cardUI.insert(type, c);
+        gameUI->cardTab->addTab(c, type);
+    }
+
+    return c;
+}
+
 void MainWindow::resetUI(){
     mainUI->setupUi(this);
     this->disconnectUI();
@@ -66,21 +85,13 @@ void MainWindow::onConnect(){
     centralWidget->setObjectName(QString("centralWidget"));
     setCentralWidget(centralWidget);
 
-    qDebug() << "Init game UI";
     gameUI->setupUi(centralWidget);
 
-    QStringListModel* cardModel = new QStringListModel(this);
-
     QStringList list;
-    QStringList cardlist;
-
     list << "Connected !";
 
     chat->setStringList(list);
-    cardModel->setStringList(cardlist);
-
     gameUI->chat->setModel(chat);
-    gameUI->cardDisplay->setModel(cardModel);
 
     connect(gameUI->message, SIGNAL(returnPressed()), this, SLOT(readMessage()));
 }
@@ -156,9 +167,13 @@ void MainWindow::receiveMessage(QString message){
 
 void MainWindow::addNewCard(Card *c)
 {
+    QString type = c->getType();
+
+    getCardWidgetByType(type);
+    /*
     QStringListModel* cards = dynamic_cast<QStringListModel*>(gameUI->cardDisplay->model());
     cards->insertRow(cards->rowCount());
 
     QModelIndex index = cards->index(cards->rowCount()-1);
-    cards->setData(index, c->getName());
+    cards->setData(index, c->getName());*/
 }

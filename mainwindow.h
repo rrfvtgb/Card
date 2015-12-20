@@ -4,12 +4,14 @@
 #include <QMainWindow>
 
 #include <QAbstractSocket>
+#include <QHash>
 
 namespace Ui {
 class MainWindow;
 class GameLayout;
 }
 
+class CardWidget;
 class QTcpSocket;
 class Game;
 class QStringListModel;
@@ -32,6 +34,9 @@ private:
     Game *game;
 
     QStringListModel* chat;
+    QHash<QString, CardWidget*> cardUI;
+
+    CardWidget* getCardWidgetByType(QString type);
 
 public slots:
     void tryConnect();
