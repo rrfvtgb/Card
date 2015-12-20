@@ -10,6 +10,7 @@
 #include "ui_gamelayout.h"
 
 #include "game.h"
+#include "card.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -39,6 +40,7 @@ void MainWindow::disconnectUI(){
     disconnect(mainUI->pushButton, SIGNAL(pressed()), this, SLOT(tryConnect()));
 
     disconnect(game, SIGNAL(receiveMessage(QString)), this, SLOT(receiveMessage(QString)));
+    disconnect(game, SIGNAL(newCard(Card*)), this, SLOT(addNewCard(Card*)));
 }
 
 void MainWindow::resetUI(){
@@ -52,6 +54,7 @@ void MainWindow::resetUI(){
     connect(mainUI->pushButton, SIGNAL(pressed()), this, SLOT(tryConnect()));
 
     connect(game, SIGNAL(receiveMessage(QString)), this, SLOT(receiveMessage(QString)));
+    connect(game, SIGNAL(newCard(Card*)), this, SLOT(addNewCard(Card*)));
 }
 
 void MainWindow::onConnect(){
@@ -66,12 +69,18 @@ void MainWindow::onConnect(){
     qDebug() << "Init game UI";
     gameUI->setupUi(centralWidget);
 
+    QStringListModel* cardModel = new QStringListModel(this);
+
     QStringList list;
+    QStringList cardlist;
 
     list << "Connected !";
 
     chat->setStringList(list);
+    cardModel->setStringList(cardlist);
+
     gameUI->chat->setModel(chat);
+    gameUI->cardDisplay->setModel(cardModel);
 
     connect(gameUI->message, SIGNAL(returnPressed()), this, SLOT(readMessage()));
 }
@@ -143,4 +152,13 @@ void MainWindow::receiveMessage(QString message){
     if(t){
         sb->setValue(sb->maximum());
     }
+}
+
+void MainWindow::addNewCard(Card *c)
+{
+    QStringListModel* cards = dynamic_cast<QStringListModel*>(gameUI->cardDisplay->model());
+    cards->insertRow(cards->rowCount());
+
+    QModelIndex index = cards->index(cards->rowCount()-1);
+    cards->setData(index, c->getName());
 }

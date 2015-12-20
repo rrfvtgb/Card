@@ -13,6 +13,7 @@ class GameLayout;
 class QTcpSocket;
 class Game;
 class QStringListModel;
+class Card;
 
 class MainWindow : public QMainWindow
 {
@@ -43,6 +44,7 @@ public slots:
 
     void readMessage();
     void receiveMessage(QString message);
+    void addNewCard(Card* c);
 };
 
 #endif // MAINWINDOW_H

@@ -2,7 +2,13 @@
 #define GAME_H
 
 #include <QObject>
-#include <QTcpSocket>
+#include <QHash>
+#include <QVector>
+
+#include "player.h"
+#include "card.h"
+
+class QTcpSocket;
 
 class Game : public QObject
 {
@@ -16,6 +22,7 @@ public:
 
 signals:
     void receiveMessage(QString message);
+    void newCard(Card* c);
 
 public slots:
     void say(QString message);
@@ -24,9 +31,16 @@ public slots:
 
 private:
     QTcpSocket* socket;
+    QHash<int, Player*> players;
+    QHash<int, Card*> cards;
+    QVector<Card*> hand;
+    int playerID;
 
     void sendCommand(QString cmd);
     QString buffer;
+
+    Player* getPlayerById(int id);
+    Card* getCardById(int id);
 };
 
 #endif // GAME_H
