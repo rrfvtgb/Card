@@ -141,13 +141,40 @@ void Game::dataReady(){
 
                 int arg1 = idPos + 1 + params[1].size();
                 int arg2 = subCmd.indexOf("\n");
-                int arg3 = subCmd.indexOf("\n", arg2+1);
 
                 c->setName(subCmd.mid(arg1, arg2-arg1));
-                c->setType(subCmd.mid(arg2, arg3-arg2));
-                c->setTooltip(subCmd.mid(arg3));
+                c->setTooltip(subCmd.mid(arg2+1));
             }else{ // INVALID Card ID
-                qDebug() << "[Error] Player id invalid: " << params[1];
+                qDebug() << "[Error] Card id invalid: " << params[1];
+            }// ----------------------------------------------
+        }else if(cmdID == "ACTIONNAME" && params.size() > 2){ // ADD CARD INFO
+            int cID = params[1].toInt(&ok);
+
+            if(ok){
+                Card* c = this->getCardById(cID);
+
+                int arg1 = idPos + 2 + params[1].size();
+                c->setName(subCmd.mid(arg1));
+            }else{ // INVALID Card ID
+                qDebug() << "[Error] Card id invalid: " << params[1];
+            }
+            // ----------------------------------------------
+        }else if(cmdID == "ACTIONSTATS" && params.size() == 6){ // ADD CARD INFO
+            bool ok2, ok3, ok4, ok5;
+
+            int cID = params[1].toInt(&ok);
+            int type = params[2].toInt(&ok2);
+            int speed = params[3].toInt(&ok3);
+            int mana = params[4].toInt(&ok4);
+            int energy = params[5].toInt(&ok5);
+
+            if(ok && ok2 && ok3 && ok4 && ok5){
+                Card* c = this->getCardById(cID);
+
+                c->setType(type);
+                c->setSpeed(speed);
+                c->setMana(mana);
+                c->setEnergy(energy);
             }
             // ----------------------------------------------
         }else{

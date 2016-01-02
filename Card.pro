@@ -17,15 +17,22 @@ SOURCES += main.cpp\
     game.cpp \
     player.cpp \
     card.cpp \
-    cardwidget.cpp
+    cardwidget.cpp \
+    cardelement.cpp \
+    cardoverlay.cpp
 
 HEADERS  += mainwindow.h \
     game.h \
     player.h \
     card.h \
-    cardwidget.h
+    cardwidget.h \
+    cardelement.h \
+    cardoverlay.h
 
 FORMS    += mainwindow.ui \
     gamelayout.ui
 
 DISTFILES +=
+
+RESOURCES += \
+    images.qrc

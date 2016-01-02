@@ -11,7 +11,6 @@ public:
 
 signals:
 
-public slots:
 };
 
 #endif // CARDWIDGET_H

@@ -1,47 +1,84 @@
 #include "card.h"
 
-Card::Card(QObject *parent) : QObject(parent)
+Card::Card(QObject *parent) : QObject(parent),
+    _tooltip("???"),
+    _name("???"),
+    _id(0),
+    _type(0),
+    _speed(0),
+    _mana(0),
+    _energy(0)
 {
 
 }
 
-QString Card::getTooltip() const
+QString Card::tooltip() const
 {
-    return tooltip;
+    return _tooltip;
 }
 
 void Card::setTooltip(const QString &value)
 {
-    tooltip = value;
+    _tooltip = value;
 }
 
-QString Card::getName() const
+QString Card::name() const
 {
-    return name;
+    return _name;
 }
 
 void Card::setName(const QString &value)
 {
-    name = value;
+    _name = value;
 }
 
-QString Card::getType() const
+int Card::id() const
 {
-    return type;
-}
-
-void Card::setType(const QString &value)
-{
-    type = value;
-}
-
-int Card::getId() const
-{
-    return id;
+    return _id;
 }
 
 void Card::setId(int value)
 {
-    id = value;
+    _id = value;
+}
+
+int Card::type() const
+{
+    return _type;
+}
+
+void Card::setType(int value)
+{
+    _type = value;
+}
+
+int Card::speed() const
+{
+    return _speed;
+}
+
+void Card::setSpeed(int value)
+{
+    _speed = value;
+}
+
+int Card::mana() const
+{
+    return _mana;
+}
+
+void Card::setMana(int value)
+{
+    _mana = value;
+}
+
+int Card::energy() const
+{
+    return _energy;
+}
+
+void Card::setEnergy(int value)
+{
+    _energy = value;
 }
 

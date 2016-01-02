@@ -28,6 +28,7 @@ public slots:
     void say(QString message);
 
     void dataReady();
+    void sendCommand(QString cmd);
 
 private:
     QTcpSocket* socket;
@@ -36,7 +37,6 @@ private:
     QVector<Card*> hand;
     int playerID;
 
-    void sendCommand(QString cmd);
     QString buffer;
 
     Player* getPlayerById(int id);
