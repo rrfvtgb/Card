@@ -3,27 +3,54 @@
 
 #include <QObject>
 
+class Creep;
+
 class Player : public QObject
 {
     Q_OBJECT
 public:
     explicit Player(QObject *parent = 0);
+    ~Player();
 
-    QString getName() const;
+    QString name() const;
     void setName(const QString &value);
 
-    int getId() const;
+    int id() const;
     void setId(int value);
 
+    int hp() const;
+    void setHp(int hp);
+
+    int mana() const;
+    void setMana(int mana);
+
+    int energy() const;
+    void setEnergy(int energy);
+
+    bool isReady() const;
+    void ready();
+    void unready();
+
+    void remplaceCreep(int slot, Creep* c);
+    Creep* getCreepAt(int slot);
+
 signals:
+    void newValue();
 
 public slots:
+    void creepUpdated();
 
 protected:
-    int id;
+    int _id;
+    int _hp;
+    int _mana;
+    int _energy;
 
-    QString name;
+    bool _ready;
 
+    QString _name;
+
+    Creep** _board;
 };
 
 #endif // PLAYER_H

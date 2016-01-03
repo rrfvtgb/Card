@@ -1,8 +1,10 @@
 #include "cardelement.h"
 
+#include <QGraphicsColorizeEffect>
 #include <QImage>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPropertyAnimation>
 
 #include <QDebug>
 
@@ -12,12 +14,25 @@
 CardElement::CardElement(QWidget *parent) : QWidget(parent),
     _card(NULL),
     _cardImage(NULL),
-    _overlay(NULL)
+    _overlay(NULL),
+    _effect(new QGraphicsColorizeEffect)
 {
-    this->setBaseSize(96, 196);
-    this->setFixedWidth(108);
-    this->setMinimumHeight(86);
-    this->setMaximumHeight(256);
+    this->setGraphicsEffect(_effect);
+    this->setMinimumSize(108, 86);
+    this->setSizePolicy(QSizePolicy(
+                            QSizePolicy::Expanding,
+                            QSizePolicy::Expanding));
+
+    _impact = 0;
+    _effect->setStrength(_impact);
+    _effect->setColor(QColor(0, 0, 192));
+
+    animation = new QPropertyAnimation(this,"_impact");
+    animation->setDuration(500);
+    animation->setStartValue(0.0);
+    animation->setEndValue(1.0);
+    animation->setEasingCurve(QEasingCurve::OutQuad);
+    animation->setLoopCount(1);
 }
 
 Card *CardElement::card() const
@@ -36,14 +51,43 @@ void CardElement::setCard(Card *card)
     this->update();
 }
 
+qreal CardElement::impact() const
+{
+    return _impact;
+}
+
+void CardElement::setImpact(const qreal &impact)
+{
+    _impact = impact;
+    _effect->setStrength(_impact);
+    this->update();
+}
+
+void CardElement::enable()
+{
+    animation->setDirection(QAbstractAnimation::Backward);
+    if(animation->state()!=QAbstractAnimation::Running){
+        animation->start();
+    }
+}
+
+void CardElement::disable()
+{
+    animation->setDirection(QAbstractAnimation::Forward);
+    if(animation->state()!=QAbstractAnimation::Running){
+        animation->start();
+    }
+}
+
 void CardElement::paintEvent(QPaintEvent *){
     QPainter painter(this);
 
     if(_cardImage != NULL){
-        painter.drawImage(16,0, *_cardImage);
+        int x = (this->width()-_cardImage->width()) >> 1;
+        painter.drawImage(x,0, *_cardImage);
     }
     if(_card != NULL){
-        QFont font = painter.font() ;
+        QFont font = painter.font();
         QTextOption textopt(Qt::AlignHCenter);
         textopt.setWrapMode(QTextOption::WordWrap);
 

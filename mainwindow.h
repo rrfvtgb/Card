@@ -11,12 +11,17 @@ class MainWindow;
 class GameLayout;
 }
 
-class CardWidget;
 class QTcpSocket;
-class Game;
 class QStringListModel;
-class Card;
 class QSettings;
+
+class Card;
+class CardElement;
+class CardWidget;
+
+class Player;
+
+class Game;
 
 class MainWindow : public QMainWindow
 {
@@ -36,6 +41,7 @@ private:
 
     QStringListModel* chat;
     QHash<int, CardWidget*> cardUI;
+    QHash<int, CardElement*> cards;
 
     CardWidget* getCardWidgetByType(int type);
 
@@ -52,7 +58,12 @@ public slots:
 
     void readMessage();
     void receiveMessage(QString message);
+
     void addNewCard(Card* c);
+    void addNewPlayer(Player* p);
+
+    void disableCard(Card* c);
+    void enableCard(Card* c);
 
     void cardClicked(Card* c);
 };

@@ -15,19 +15,18 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QHBoxLayout" name="creepDisplay">
-     <item>
-      <widget class="QListView" name="P2Creep"/>
-     </item>
-     <item>
-      <widget class="QListView" name="P1Creep"/>
-     </item>
-    </layout>
+    <layout class="QHBoxLayout" name="creepDisplay"/>
    </item>
    <item>
     <widget class="QTabWidget" name="cardTab">
      <property name="enabled">
       <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>3</horstretch>
+       <verstretch>3</verstretch>
+      </sizepolicy>
      </property>
      <property name="currentIndex">
       <number>-1</number>

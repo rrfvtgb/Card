@@ -202,4 +202,21 @@
         <file>images/action/199.png</file>
         <file>images/action/200.png</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file alias="energy.png">images/energy.png</file>
+        <file alias="hp.png">images/hp.png</file>
+        <file alias="mana.png">images/mana.png</file>
+    </qresource>
+    <qresource prefix="/creature">
+        <file alias="1.png">images/creature/1.png</file>
+        <file alias="10.png">images/creature/10.png</file>
+        <file alias="2.png">images/creature/2.png</file>
+        <file alias="3.png">images/creature/3.png</file>
+        <file alias="4.png">images/creature/4.png</file>
+        <file alias="5.png">images/creature/5.png</file>
+        <file alias="6.png">images/creature/6.png</file>
+        <file alias="7.png">images/creature/7.png</file>
+        <file alias="8.png">images/creature/8.png</file>
+        <file alias="9.png">images/creature/9.png</file>
+    </qresource>
 </RCC>

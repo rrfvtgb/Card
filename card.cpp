@@ -1,13 +1,13 @@
 #include "card.h"
 
 Card::Card(QObject *parent) : QObject(parent),
-    _tooltip("???"),
-    _name("???"),
     _id(0),
     _type(0),
     _speed(0),
     _mana(0),
-    _energy(0)
+    _energy(0),
+    _tooltip("???"),
+    _name("???")
 {
 
 }

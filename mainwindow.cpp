@@ -15,6 +15,7 @@
 #include "card.h"
 #include "cardwidget.h"
 #include "cardelement.h"
+#include "playerwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -49,16 +50,6 @@ MainWindow::~MainWindow()
     delete gameUI;
 }
 
-void MainWindow::disconnectUI(){
-    disconnect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
-    disconnect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
-
-    disconnect(mainUI->pushButton, SIGNAL(pressed()), this, SLOT(tryConnect()));
-
-    disconnect(game, SIGNAL(receiveMessage(QString)), this, SLOT(receiveMessage(QString)));
-    disconnect(game, SIGNAL(newCard(Card*)), this, SLOT(addNewCard(Card*)));
-}
-
 CardWidget *MainWindow::getCardWidgetByType(int type)
 {
     QHash<int, CardWidget*>::iterator it = this->cardUI.find(type);
@@ -77,11 +68,22 @@ CardWidget *MainWindow::getCardWidgetByType(int type)
 
         this->cardUI.insert(type, c);
         gameUI->cardTab->addTab(c, name);
-
-        qDebug() << type << "::type-> "<< name << t;
     }
 
     return c;
+}
+
+void MainWindow::disconnectUI(){
+    disconnect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
+    disconnect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
+
+    disconnect(mainUI->pushButton, SIGNAL(pressed()), this, SLOT(tryConnect()));
+
+    disconnect(game, SIGNAL(receiveMessage(QString)), this, SLOT(receiveMessage(QString)));
+    disconnect(game, SIGNAL(newCard(Card*)), this, SLOT(addNewCard(Card*)));
+    disconnect(game, SIGNAL(disableCard(Card*)), this, SLOT(disableCard(Card*)));
+    disconnect(game, SIGNAL(enableCard(Card*)), this, SLOT(enableCard(Card*)));
+    disconnect(game, SIGNAL(newPlayer(Player*)), this, SLOT(addNewPlayer(Player*)));
 }
 
 void MainWindow::resetUI(){
@@ -98,7 +100,11 @@ void MainWindow::resetUI(){
     connect(mainUI->pushButton, SIGNAL(pressed()), this, SLOT(tryConnect()));
 
     connect(game, SIGNAL(receiveMessage(QString)), this, SLOT(receiveMessage(QString)));
+
+    connect(game, SIGNAL(newPlayer(Player*)), this, SLOT(addNewPlayer(Player*)));
     connect(game, SIGNAL(newCard(Card*)), this, SLOT(addNewCard(Card*)));
+    connect(game, SIGNAL(disableCard(Card*)), this, SLOT(disableCard(Card*)));
+    connect(game, SIGNAL(enableCard(Card*)), this, SLOT(enableCard(Card*)));
 }
 
 void MainWindow::onConnect(){
@@ -176,7 +182,55 @@ void MainWindow::readMessage(){
     gameUI->message->setText("");
 
     if(message.startsWith("/")){
-        game->sendCommand(message.mid(1));
+        QString command(message.mid(1));
+
+        if(command.compare("deckbuilder", Qt::CaseInsensitive) == 0){
+            disconnect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
+            game->sendCommand("DECKBUILDER");
+            game->setMode(Game::DeckBuilder);
+        }else if(command.startsWith("save", Qt::CaseInsensitive)
+                 && game->getMode() == Game::DeckBuilder){
+            QString name = "";
+            QString deck = game->getDeckAsString();
+            int pos = command.indexOf(" ");
+
+            if(pos != -1){
+                name = command.mid(pos+1);
+            }else{
+                name = QString::number(qrand());
+            }
+
+            config->setValue("deck-"+name, deck);
+            this->receiveMessage("Deck saved as "+name);
+        }else if(command.startsWith("load ", Qt::CaseInsensitive)){
+            QString name = command.mid(5);
+            if(config->contains("deck-"+name)){
+                QString deck = config->value("deck-"+name, "").toString();
+
+                if(game->getMode() == Game::DeckBuilder){
+                    QStringList l = deck.split(' ');
+                    QVector<Card*> deck;
+
+                    bool ok;
+                    int id;
+
+                    foreach(QString card, l){
+                        id = card.toInt(&ok);
+                        if(ok){
+                            deck.append(game->getCardById(id));
+                        }
+                    }
+
+                    game->setNewDeck(deck);
+                }else if(game->getMode() == Game::Classic){
+                    game->sendCommand("DECK"+deck);
+                }
+            }else{
+                this->receiveMessage("Deck not found: "+name);
+            }
+        }else{
+            game->sendCommand(command);
+        }
     }else{
         game->say(message);
     }
@@ -206,8 +260,10 @@ void MainWindow::addNewCard(Card *c)
 
     connect(el, SIGNAL(onCardClicked(Card*)), this, SLOT(cardClicked(Card*)));
 
-    el->setCard(c);
+    el->disable();
+    cards.insert(c->id(), el);
 
+    el->setCard(c);
     l->addWidget(el);
 
     int n = qCeil(qSqrt(l->count()));
@@ -237,6 +293,36 @@ void MainWindow::addNewCard(Card *c)
     }
 }
 
+void MainWindow::addNewPlayer(Player *p)
+{
+    PlayerWidget* w = new PlayerWidget();
+    w->setPlayer(p);
+
+    gameUI->creepDisplay->addWidget(w);
+}
+
+void MainWindow::disableCard(Card *c)
+{
+    QHash<int, CardElement*>::iterator it = this->cards.find(c->id());
+    CardElement* el;
+
+    if(it != this->cards.end()){ // Card Widget exist
+        el = it.value();
+        el->disable();
+    }
+}
+
+void MainWindow::enableCard(Card *c)
+{
+    QHash<int, CardElement*>::iterator it = this->cards.find(c->id());
+    CardElement* el;
+
+    if(it != this->cards.end()){ // Card Widget exist
+        el = it.value();
+        el->enable();
+    }
+}
+
 void MainWindow::cardClicked(Card *c){
-    qDebug() << "Card clicked: "<< c->name();
+    game->onCardClick(c);
 }
