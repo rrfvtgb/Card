@@ -62,6 +62,8 @@ public slots:
     void addNewCard(Card* c);
     void addNewPlayer(Player* p);
 
+    void removeCard(Card* c);
+
     void disableCard(Card* c);
     void enableCard(Card* c);
 

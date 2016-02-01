@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     cardelement.cpp \
     cardoverlay.cpp \
     playerwidget.cpp \
-    creep.cpp
+    creep.cpp \
+    cardlayout.cpp
 
 HEADERS  += mainwindow.h \
     game.h \
@@ -31,7 +32,8 @@ HEADERS  += mainwindow.h \
     cardelement.h \
     cardoverlay.h \
     playerwidget.h \
-    creep.h
+    creep.h \
+    cardlayout.h
 
 FORMS    += mainwindow.ui \
     gamelayout.ui

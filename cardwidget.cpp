@@ -1,12 +1,14 @@
 #include "cardwidget.h"
 
-#include <QGridLayout>
+#include "cardlayout.h"
+
+//#include <QGridLayout>
+
 
 CardWidget::CardWidget(QWidget *parent) : QWidget(parent)
 {
-    QGridLayout *layout = new QGridLayout(this);
+    //QGridLayout *layout = new QGridLayout(this);
+    CardLayout *layout = new CardLayout(this);
 
-    layout->setVerticalSpacing(0);
-    layout->setHorizontalSpacing(0);
-
+    layout->setSpacing(0);
 }

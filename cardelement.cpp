@@ -18,7 +18,7 @@ CardElement::CardElement(QWidget *parent) : QWidget(parent),
     _effect(new QGraphicsColorizeEffect)
 {
     this->setGraphicsEffect(_effect);
-    this->setMinimumSize(108, 86);
+    this->setMinimumSize(64, 64);
     this->setSizePolicy(QSizePolicy(
                             QSizePolicy::Expanding,
                             QSizePolicy::Expanding));
@@ -61,6 +61,17 @@ void CardElement::setImpact(const qreal &impact)
     _impact = impact;
     _effect->setStrength(_impact);
     this->update();
+}
+
+QSize CardElement::sizeHint() const
+{
+    QFont f;
+    QFontMetrics fm(f);
+
+    int w = fm.width(_card->name());
+    int h = fm.height();
+
+    return QSize(64+ w, 64+ h);
 }
 
 void CardElement::enable()

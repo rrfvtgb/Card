@@ -74,16 +74,17 @@ CardWidget *MainWindow::getCardWidgetByType(int type)
 }
 
 void MainWindow::disconnectUI(){
-    disconnect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
-    disconnect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
+    disconnect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),  this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
+    disconnect(socket, SIGNAL(error(QAbstractSocket::SocketError)),         this, SLOT(displayError(QAbstractSocket::SocketError)));
 
     disconnect(mainUI->pushButton, SIGNAL(pressed()), this, SLOT(tryConnect()));
 
-    disconnect(game, SIGNAL(receiveMessage(QString)), this, SLOT(receiveMessage(QString)));
-    disconnect(game, SIGNAL(newCard(Card*)), this, SLOT(addNewCard(Card*)));
-    disconnect(game, SIGNAL(disableCard(Card*)), this, SLOT(disableCard(Card*)));
-    disconnect(game, SIGNAL(enableCard(Card*)), this, SLOT(enableCard(Card*)));
-    disconnect(game, SIGNAL(newPlayer(Player*)), this, SLOT(addNewPlayer(Player*)));
+    disconnect(game, SIGNAL(receiveMessage(QString)),   this, SLOT(receiveMessage(QString)));
+    disconnect(game, SIGNAL(newCard(Card*)),            this, SLOT(addNewCard(Card*)));
+    disconnect(game, SIGNAL(removeCard(Card*)),         this, SLOT(removeCard(Card*)));
+    disconnect(game, SIGNAL(disableCard(Card*)),        this, SLOT(disableCard(Card*)));
+    disconnect(game, SIGNAL(enableCard(Card*)),         this, SLOT(enableCard(Card*)));
+    disconnect(game, SIGNAL(newPlayer(Player*)),        this, SLOT(addNewPlayer(Player*)));
 }
 
 void MainWindow::resetUI(){
@@ -95,16 +96,16 @@ void MainWindow::resetUI(){
 
     // SIGNAL / SLOT
     connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),        this, SLOT(displayError(QAbstractSocket::SocketError)));
 
     connect(mainUI->pushButton, SIGNAL(pressed()), this, SLOT(tryConnect()));
 
-    connect(game, SIGNAL(receiveMessage(QString)), this, SLOT(receiveMessage(QString)));
-
-    connect(game, SIGNAL(newPlayer(Player*)), this, SLOT(addNewPlayer(Player*)));
-    connect(game, SIGNAL(newCard(Card*)), this, SLOT(addNewCard(Card*)));
-    connect(game, SIGNAL(disableCard(Card*)), this, SLOT(disableCard(Card*)));
-    connect(game, SIGNAL(enableCard(Card*)), this, SLOT(enableCard(Card*)));
+    connect(game, SIGNAL(receiveMessage(QString)),  this, SLOT(receiveMessage(QString)));
+    connect(game, SIGNAL(newCard(Card*)),           this, SLOT(addNewCard(Card*)));
+    connect(game, SIGNAL(removeCard(Card*)),        this, SLOT(removeCard(Card*)));
+    connect(game, SIGNAL(disableCard(Card*)),       this, SLOT(disableCard(Card*)));
+    connect(game, SIGNAL(enableCard(Card*)),        this, SLOT(enableCard(Card*)));
+    connect(game, SIGNAL(newPlayer(Player*)),       this, SLOT(addNewPlayer(Player*)));
 }
 
 void MainWindow::onConnect(){
@@ -256,7 +257,7 @@ void MainWindow::addNewCard(Card *c)
 {
     CardWidget* w = getCardWidgetByType(c->type());
     CardElement* el = new CardElement(w);
-    QGridLayout* l = dynamic_cast<QGridLayout *>(w->layout());
+    QLayout* l = w->layout();
 
     connect(el, SIGNAL(onCardClicked(Card*)), this, SLOT(cardClicked(Card*)));
 
@@ -265,32 +266,6 @@ void MainWindow::addNewCard(Card *c)
 
     el->setCard(c);
     l->addWidget(el);
-
-    int n = qCeil(qSqrt(l->count()));
-    QList<QLayoutItem*> list;
-
-    for (int i = l->count()-1; i >= 0; i--){
-        QLayoutItem* item = l->itemAt(i);
-        list << item;
-        l->removeItem(item);
-    }
-
-    int x = 0;
-    int y = 0;
-
-    while(!list.isEmpty()){
-        QLayoutItem* item = list.first();
-        list.pop_front();
-
-        if(item != NULL){
-            l->addItem(item, y, x);
-            x++;
-            if(x==n){
-                x = 0;
-                y++;
-            }
-        }
-    }
 }
 
 void MainWindow::addNewPlayer(Player *p)
@@ -299,6 +274,19 @@ void MainWindow::addNewPlayer(Player *p)
     w->setPlayer(p);
 
     gameUI->creepDisplay->addWidget(w);
+}
+
+void MainWindow::removeCard(Card *c)
+{
+    QHash<int, CardElement*>::iterator it = this->cards.find(c->id());
+    CardElement* el;
+
+    if(it != this->cards.end()){ // Card Widget exist
+        el = it.value();
+        delete el;
+
+        this->cards.remove(c->id());
+    }
 }
 
 void MainWindow::disableCard(Card *c)

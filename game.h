@@ -39,6 +39,7 @@ signals:
     void receiveMessage(QString message);
 
     void newCard(Card* c);
+    void removeCard(Card* c);
     void newPlayer(Player* p);
 
     void disableCard(Card* c);

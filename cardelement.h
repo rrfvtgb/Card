@@ -21,6 +21,8 @@ public:
     qreal impact() const;
     void setImpact(const qreal &impact);
 
+    QSize sizeHint() const;
+
 public slots:
     void enable();
     void disable();

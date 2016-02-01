@@ -32,7 +32,7 @@ void Game::onCardClick(Card *c)
         if(deck.contains(c)){
             deck.removeOne(c);
             emit disableCard(c);
-        }else{
+        }else if(deck.length()<20){
             deck.append(c);
             emit enableCard(c);
         }
@@ -239,12 +239,12 @@ void Game::dataReady(){
             }
             // ----------------------------------------------
         }else if(cmdID == "CKILL" && params.size() == 3){ // KILL CREEP
-            bool ok2, ok3;
+            bool ok2;
 
             int player = params[1].toInt(&ok);
             int slot = params[2].toInt(&ok2);
 
-            if(ok && ok2 && ok3 && ok4 && ok5 && ok6){
+            if(ok && ok2){
                 Player* p = this->getPlayerById(player);
                 p->remplaceCreep(slot, NULL);
             }else{
@@ -347,6 +347,17 @@ void Game::dataReady(){
                 qDebug() << "[Error] Player id invalid: " << params[1];
             }
             // ----------------------------------------------
+        }else if(cmdID == "REMOVE" && params.size() == 3){ // REMOVE CARD
+            bool ok2;
+
+            int pID = params[1].toInt(&ok);
+            int cID = params[2].toInt(&ok2);
+
+            if(ok && ok2 && pID == this->playerID){
+                Card* c = this->getCardById(cID);
+                emit removeCard(c);
+            }
+            // ----------------------------------------------
         }else if(cmdID == "TOOLTIP" && params.size() > 2){ // ADD CARD INFO
             int cID = params[1].toInt(&ok);
 
@@ -354,8 +365,8 @@ void Game::dataReady(){
                 Card* c = this->getCardById(cID);
 
                 int arg1 = idPos + 1 + params[1].size();
-                int arg2 = subCmd.indexOf("\n");
-                int arg3 = subCmd.indexOf("\n", arg2+1);
+                int arg2 = subCmd.indexOf("\n"); // Ignore name
+                int arg3 = subCmd.indexOf("\n", arg2+1); // Ignore type
 
                 c->setName(subCmd.mid(arg1, arg2-arg1));
                 c->setTooltip(subCmd.mid(arg3+1));

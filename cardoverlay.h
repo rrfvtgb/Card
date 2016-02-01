@@ -26,7 +26,7 @@ protected:
     void paintEvent(QPaintEvent *);
 
     bool _upward;
-    int _ty;
+    qreal _ty;
     Card* _card;
     QTimer* _timer;
 };

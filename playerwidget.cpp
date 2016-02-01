@@ -54,7 +54,11 @@ void PlayerWidget::paintEvent(QPaintEvent *)
         h = this->width()/4;
     }
 
+    h = h-3;
+
     this->drawCreep(&p, 5, x, h);
+    x+= 11;
+
     this->drawCreep(&p, 3, x, h);
     this->drawCreep(&p, 2, x, h);
     this->drawCreep(&p, 1, x, h);
@@ -122,6 +126,20 @@ void PlayerWidget::drawCreep(QPainter *p, int slot, int &x, int height)
         p->setTransform(t);
         p->drawImage((int) (x/sx), (int) ((height*2./3+22 ) /sy), *energy);
         p->drawText((int) (x/sx), (int) ((height*2./3+22 ) /sy), hp->width(), hp->height(), Qt::AlignCenter, QString::number(c->attack()));
+    }else{
+        QFont f = p->font();
+        QPen pen = p->pen();
+
+        f.setPixelSize(height);
+
+        pen.setStyle(Qt::DashDotLine);
+        pen.setColor(QColor(196, 196, 196));
+
+        p->setFont(f);
+        p->setPen(pen);
+
+        p->drawRect(x, 22, height, height);
+        p->drawText(x, 22, height, height, Qt::AlignCenter, QString::number(slot));
     }
     p->restore();
 
