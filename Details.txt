@@ -1,0 +1,32 @@
+Main
+----
+
+Launch Windows Controller
+
+
+Windows Controller
+------------------
+
+Contains Configuration
+Open options, server and other windows.
+Used as main class
+
+
+Options Windows
+---------------
+
+Contains all configuration value
+May save some value
+
+
+Server Windows
+--------------
+
+Contains server socket and list of clients
+Used as chat and console for the server
+
+
+Client Socket
+-------------
+
+Used to send and read data from an user
