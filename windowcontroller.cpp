@@ -24,13 +24,13 @@ WindowController::~WindowController()
 
 void WindowController::load()
 {
-    QStringList options = QString("port autohost").split(" ");
+    QStringList options = QString("port autohost scriptfolder").split(" ");
     bool containsAll = true;
 
     foreach(QString option, options){
         if(!config->contains(option)){
             containsAll = false;
-            qDebug() << option;
+            qDebug() << "Option missing : " << option;
         }
     }
 

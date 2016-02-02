@@ -34,6 +34,8 @@ private slots:
 
     void on_button_cancel_clicked();
 
+    void on_browse_scriptfolder_clicked();
+
 private:
     Ui::OptionWindows *ui;
     QSettings *config;

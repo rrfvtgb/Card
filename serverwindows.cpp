@@ -2,6 +2,7 @@
 #include "ui_serverwindows.h"
 
 #include "clientsocket.h"
+#include "gameengine.h"
 
 #include <QSettings>
 #include <QTcpServer>
@@ -15,13 +16,15 @@ ServerWindows::ServerWindows(QWidget *parent):
 
 ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) : QMainWindow(parent),
     ui(new Ui::ServerWindows),
-    config(conf)
+    _config(conf),
+    game(new GameEngine(this))
 {
     ui->setupUi(this);
 }
 
 ServerWindows::~ServerWindows()
 {
+    delete game;
     delete server;
     delete ui;
 }
@@ -55,7 +58,7 @@ void ServerWindows::showEvent(QShowEvent *)
 
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
 
-    loaded = server->listen(QHostAddress::Any, config->value("port").toInt());
+    loaded = server->listen(QHostAddress::Any, _config->value("port").toInt());
 
     if(!loaded){
         qDebug() << "Can't start the server, closing... \0";
@@ -70,7 +73,17 @@ void ServerWindows::closeEvent(QCloseEvent *)
     emit closed(this);
 }
 
+QSettings *ServerWindows::config() const
+{
+    return _config;
+}
+
+void ServerWindows::setConfig(QSettings *config)
+{
+    _config = config;
+}
+
 void ServerWindows::on_input_chat_returnPressed()
 {
-
+    
 }

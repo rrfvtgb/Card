@@ -12,6 +12,7 @@ class QSettings;
 class QTcpServer;
 
 class ClientSocket;
+class GameEngine;
 
 class ServerWindows : public QMainWindow
 {
@@ -24,6 +25,9 @@ public:
 
     void broadcast(const QByteArray& data);
 
+    QSettings *config() const;
+    void setConfig(QSettings *config);
+
 signals:
     void closed(QMainWindow*);
 
@@ -35,11 +39,15 @@ protected:
     void closeEvent(QCloseEvent *);
 
     Ui::ServerWindows *ui;
-    QSettings* config;
+    QSettings* _config;
     QTcpServer* server;
 
     QHash<int, ClientSocket*> clients;
     int clientID;
+
+    GameEngine* game;
+
+
 private slots:
     void on_input_chat_returnPressed();
 };
