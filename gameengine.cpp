@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QScriptEngine>
 #include <QTextStream>
+#include <QDebug>
 
 GameEngine::GameEngine(ServerWindows *server) : QObject(server),
     _engine(new QScriptEngine),
@@ -31,7 +32,7 @@ void GameEngine::initCards()
     _engine->globalObject().setProperty("card", _engine->newArray());
 
     foreach(QString card, l){
-        this->loadCard(card);
+        this->loadCard(script.canonicalPath()+"/"+card);
     }
 }
 
@@ -46,6 +47,32 @@ void GameEngine::loadCard(QString scriptpath)
 
     if(card.isObject()){
         qint32 id = card.property("id").toInt32();
-        _engine->globalObject().property("card").setProperty(id, card);
+        cardObject().setProperty(id, card);
     }
+    checkError();
+}
+
+void GameEngine::checkError()
+{
+    if(_engine->hasUncaughtException()){
+        qDebug("%s on %s:%d",
+               _engine->uncaughtException().toString().toStdString().c_str(),
+               _engine->uncaughtException().property("fileName").toString().toStdString().c_str(),
+               _engine->uncaughtExceptionLineNumber());
+
+        QStringList l = _engine->uncaughtExceptionBacktrace();
+        foreach(QString trace, l){
+            qDebug("  %s", trace.toStdString().c_str());
+        }
+    }
+}
+
+QScriptValue GameEngine::cardObject()
+{
+    return _engine->globalObject().property("card");
+}
+
+QScriptValue GameEngine::cardObject(qint32 id)
+{
+    return cardObject().property(id);
 }

@@ -6,6 +6,7 @@
 class ServerWindows;
 
 class QScriptEngine;
+class QScriptValue;
 
 class GameEngine : public QObject
 {
@@ -26,6 +27,10 @@ protected:
 
     void initCards();
     void loadCard(QString scriptpath);
+    void checkError();
+
+    QScriptValue cardObject();
+    QScriptValue cardObject(qint32 id);
 };
 
 #endif // GAMEENGINE_H
