@@ -7,10 +7,14 @@
 #include <QTextStream>
 #include <QDebug>
 
+#include <network/packet.h>
+#include <network/packetmanager.h>
+
 GameEngine::GameEngine(ServerWindows *server) : QObject(server),
     _engine(new QScriptEngine),
     _server(server)
 {
+    this->initMain();
     this->initCards();
 }
 
@@ -24,12 +28,37 @@ void GameEngine::setServer(ServerWindows *server)
     _server = server;
 }
 
+void GameEngine::initMain()
+{
+    QFile f(_server->config()->value("scriptfolder").toString() + "/game.js");
+    if (!f.open(QFile::ReadOnly | QFile::Text)) return;
+    QTextStream in(&f);
+    QScriptValue game = _engine->evaluate(in.readAll(), f.fileName());
+
+    _engine->globalObject().setProperty("server", _engine->newQObject(_server));
+    _engine->globalObject().setProperty("game",   game);
+    _engine->globalObject().setProperty("card",   _engine->newArray());
+}
+
+void GameEngine::initPacket()
+{
+    QScriptValue packets = _engine->newArray(256);
+
+    for(int i = 0; i <256; i++){
+        Packet* p = PacketManager::getPacket(i);
+
+        if(p != NULL){
+            packets.setProperty(i, _engine->newQObject(p));
+        }
+    }
+
+    _engine->globalObject().setProperty("packet", packets);
+}
+
 void GameEngine::initCards()
 {
     QDir script(_server->config()->value("scriptfolder").toString() + "/card");
     QStringList l = script.entryList(QDir::Files | QDir::Readable);
-
-    _engine->globalObject().setProperty("card", _engine->newArray());
 
     foreach(QString card, l){
         this->loadCard(script.canonicalPath()+"/"+card);

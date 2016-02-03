@@ -7,7 +7,13 @@ Packet::Packet():
 }
 
 Packet::Packet(quint8 id):
+    QObject(),
     _id(id)
+{
+
+}
+
+Packet::~Packet()
 {
 
 }

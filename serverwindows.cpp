@@ -61,7 +61,7 @@ void ServerWindows::showEvent(QShowEvent *)
     loaded = server->listen(QHostAddress::Any, _config->value("port").toInt());
 
     if(!loaded){
-        qDebug() << "Can't start the server, closing... \0";
+        qDebug() << "Can't start the server, exiting now...";
         this->close();
     }else{
         ui->statusbar->showMessage("Server ready!");
@@ -71,6 +71,11 @@ void ServerWindows::showEvent(QShowEvent *)
 void ServerWindows::closeEvent(QCloseEvent *)
 {
     emit closed(this);
+}
+
+QHash<int, ClientSocket*> ServerWindows::getClients() const
+{
+    return clients;
 }
 
 QSettings *ServerWindows::config() const

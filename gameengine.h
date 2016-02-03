@@ -25,6 +25,8 @@ protected:
     QScriptEngine* _engine;
     ServerWindows* _server;
 
+    void initMain();
+    void initPacket();
     void initCards();
     void loadCard(QString scriptpath);
     void checkError();
