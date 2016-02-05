@@ -26,7 +26,13 @@ protected:
 
     QByteArray *emptyPacket();
     void write(QByteArray*, const QString &str);
-    void write(QByteArray*, quint8);
+    void write(QByteArray*data, char value);
+    void write(QByteArray*data, quint16 value);
+    void write(QByteArray*data, quint32 value);
+    void write(QByteArray*data, quint64 value);
+
+    /// Send packet and delete it from memory
+    void packetReady(QByteArray* data, ClientSocket*client);
 
     QString readString(const QByteArray&, int &index);
     quint8 readuint8(const QByteArray&, int &index);
