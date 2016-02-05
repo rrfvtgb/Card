@@ -30,14 +30,13 @@ void GameEngine::setServer(ServerWindows *server)
 
 void GameEngine::initMain()
 {
-    QFile f(_server->config()->value("scriptfolder").toString() + "/game.js");
-    if (!f.open(QFile::ReadOnly | QFile::Text)) return;
-    QTextStream in(&f);
-    QScriptValue game = _engine->evaluate(in.readAll(), f.fileName());
+    QScriptValue game = loadObject(_server->config()->value("scriptfolder").toString() + "/game.js");
 
     _engine->globalObject().setProperty("server", _engine->newQObject(_server));
     _engine->globalObject().setProperty("game",   game);
     _engine->globalObject().setProperty("card",   _engine->newArray());
+
+    checkError();
 }
 
 void GameEngine::initPacket()
@@ -67,18 +66,13 @@ void GameEngine::initCards()
 
 void GameEngine::loadCard(QString scriptpath)
 {
-    QFile f(scriptpath);
-
-    if (!f.open(QFile::ReadOnly | QFile::Text)) return;
-
-    QTextStream in(&f);
-    QScriptValue card = _engine->evaluate(in.readAll(), scriptpath);
+    QScriptValue card = loadObject(scriptpath);
 
     if(card.isObject()){
         qint32 id = card.property("id").toInt32();
         cardObject().setProperty(id, card);
     }
-    checkError();
+
 }
 
 void GameEngine::checkError()
@@ -104,4 +98,17 @@ QScriptValue GameEngine::cardObject()
 QScriptValue GameEngine::cardObject(qint32 id)
 {
     return cardObject().property(id);
+}
+
+QScriptValue GameEngine::loadObject(QString scriptpath)
+{
+    QFile f(scriptpath);
+
+    if (!f.open(QFile::ReadOnly | QFile::Text)) return QScriptValue();
+
+    QTextStream in(&f);
+    QScriptValue card = _engine->evaluate(in.readAll(), scriptpath);
+
+    checkError();
+    return card;
 }

@@ -8,8 +8,9 @@ class Packet01Message : public Packet
 public:
     Packet01Message();
 
+public slots:
     void bytesToRead(const QByteArray&, ClientSocket*);
-    QByteArray& bytesToWrite(ClientSocket*, const QString& message);
+    void bytesToWrite(ClientSocket*c, const QString& playername, const QString& message);
 };
 
 #endif // PACKET01MESSAGE_H

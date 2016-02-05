@@ -7,5 +7,9 @@ int main(int argc, char *argv[])
     WindowController c;
     c.load();
 
+    QApplication::setApplicationDisplayName("Mana Flow");
+    QApplication::setApplicationName("Mana Flow");
+    QApplication::setApplicationVersion("0.0.1");
+
     return a.exec();
 }

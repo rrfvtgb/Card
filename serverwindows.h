@@ -34,6 +34,8 @@ public:
 
     QHash<int, ClientSocket*> getClients() const;
 
+    void sendMessage(const QString& playername, const QString& message);
+
 signals:
     void closed(QMainWindow*);
 
@@ -49,10 +51,11 @@ protected:
     QTcpServer* server;
 
     QHash<int, ClientSocket*> clients;
+    ClientSocket* _broadcast;
     int clientID;
 
     GameEngine* game;
-
+    bool _loaded;
 
 private slots:
     void on_input_chat_returnPressed();

@@ -1,5 +1,7 @@
 #include "clientsocket.h"
 
+#include <QApplication>
+
 ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent),
     _socket(socket)
 {
@@ -7,7 +9,9 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent
         connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
 
         // HEADER
-        socket->write("MasterCard v0.0.1\n");
+        socket->write((QApplication::applicationName()
+                      +" v"+QApplication::applicationVersion()
+                      +"\n").toUtf8());
     }
 }
 

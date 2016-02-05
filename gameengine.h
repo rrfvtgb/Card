@@ -33,6 +33,7 @@ protected:
 
     QScriptValue cardObject();
     QScriptValue cardObject(qint32 id);
+    QScriptValue loadObject(QString scriptpath);
 };
 
 #endif // GAMEENGINE_H

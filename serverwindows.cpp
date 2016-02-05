@@ -1,22 +1,27 @@
 #include "serverwindows.h"
 #include "ui_serverwindows.h"
 
+#include "broadcastsocket.h"
 #include "clientsocket.h"
 #include "gameengine.h"
 
 #include <QSettings>
 #include <QTcpServer>
 
+#include <network/packet01message.h>
+#include <network/packetmanager.h>
+
 ServerWindows::ServerWindows(QWidget *parent):
     ServerWindows(new QSettings("config.ini", QSettings::IniFormat),
                   parent)
 {
-
+    _loaded = false;
 }
 
 ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) : QMainWindow(parent),
     ui(new Ui::ServerWindows),
     _config(conf),
+    _broadcast(new BroadcastSocket(this)),
     game(new GameEngine(this))
 {
     ui->setupUi(this);
@@ -51,16 +56,16 @@ void ServerWindows::newConnection()
 
 void ServerWindows::showEvent(QShowEvent *)
 {
-    bool loaded;
+    if(_loaded) return;
 
     server   = new QTcpServer(this);
     clientID = 0;
 
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
 
-    loaded = server->listen(QHostAddress::Any, _config->value("port").toInt());
+    _loaded = server->listen(QHostAddress::Any, _config->value("port").toInt());
 
-    if(!loaded){
+    if(!_loaded){
         qDebug() << "Can't start the server, exiting now...";
         this->close();
     }else{
@@ -78,6 +83,16 @@ QHash<int, ClientSocket*> ServerWindows::getClients() const
     return clients;
 }
 
+void ServerWindows::sendMessage(const QString &playername, const QString &message)
+{
+    Packet01Message* m = dynamic_cast<Packet01Message*>
+            (PacketManager::getPacket(0x01));
+
+    m->bytesToWrite(_broadcast, playername, message);
+
+    ui->text_chat->appendHtml("<b style='color:#6a6;'>&lt;"+playername.toHtmlEscaped()+"&gt;</b> "+message.toHtmlEscaped());
+}
+
 QSettings *ServerWindows::config() const
 {
     return _config;
@@ -90,5 +105,6 @@ void ServerWindows::setConfig(QSettings *config)
 
 void ServerWindows::on_input_chat_returnPressed()
 {
-    
+    this->sendMessage("Server", ui->input_chat->text());
+    ui->input_chat->setText("");
 }
