@@ -9,6 +9,7 @@
 #include "card.h"
 
 class QTcpSocket;
+class SocketController;
 
 class Game : public QObject
 {
@@ -24,7 +25,7 @@ public:
     explicit Game(QObject *parent = 0);
     ~Game();
 
-    QTcpSocket *getSocket() const;
+    QTcpSocket *socket() const;
     void setSocket(QTcpSocket *value);
 
     GameMode getMode() const;
@@ -34,6 +35,11 @@ public:
     void setNewDeck(QVector<Card*> newDeck);
 
     Card* getCardById(int id);
+    Player* getPlayerById(int id);
+
+    Player* playerData();
+
+    void setPlayerID(int value);
 
 signals:
     void receiveMessage(QString message);
@@ -51,21 +57,19 @@ public slots:
     void dataReady();
     void sendCommand(QString cmd);
 
+    void appendCard(Card* c);
     void onCardClick(Card *c);
 
 private:
-    QTcpSocket* socket;
+    QTcpSocket *_socket;
     QHash<int, Player*> players;
     QHash<int, Card*> cards;
     QVector<Card*> hand;
     QVector<Card*> deck;
     int playerID;
 
-    QString buffer;
-
-    Player* getPlayerById(int id);
-
     GameMode _mode;
+    SocketController* _network;
 };
 
 #endif // GAME_H

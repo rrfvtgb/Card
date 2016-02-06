@@ -8,6 +8,8 @@ QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+CONFIG   += C++11
+
 TARGET = Card
 TEMPLATE = app
 
@@ -22,7 +24,13 @@ SOURCES += main.cpp\
     cardoverlay.cpp \
     playerwidget.cpp \
     creep.cpp \
-    cardlayout.cpp
+    cardlayout.cpp \
+    network/packet.cpp \
+    network/packet01message.cpp \
+    network/packetmanager.cpp \
+    network/clientsocket.cpp \
+    network/compatibilitysocket.cpp \
+    network/socketcontroller.cpp
 
 HEADERS  += mainwindow.h \
     game.h \
@@ -33,7 +41,13 @@ HEADERS  += mainwindow.h \
     cardoverlay.h \
     playerwidget.h \
     creep.h \
-    cardlayout.h
+    cardlayout.h \
+    network/packet.h \
+    network/packet01message.h \
+    network/packetmanager.h \
+    network/clientsocket.h \
+    network/compatibilitysocket.h \
+    network/socketcontroller.h
 
 FORMS    += mainwindow.ui \
     gamelayout.ui
