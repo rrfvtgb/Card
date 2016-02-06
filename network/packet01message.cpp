@@ -3,7 +3,8 @@
 #include <QIODevice>
 #include <clientsocket.h>
 
-Packet01Message::Packet01Message()
+Packet01Message::Packet01Message():
+    Packet(1)
 {
 
 }

@@ -14,7 +14,9 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent
         // HEADER
         socket->write((QApplication::applicationName()
                       +" v"+QApplication::applicationVersion()
-                      +"\n").toUtf8());
+                      +"\n").toLocal8Bit());
+
+        qDebug() << "New player connected";
     }
 }
 
@@ -39,7 +41,7 @@ void ClientSocket::read()
     Packet* packet = PacketManager::getPacket(id);
 
     if(packet == NULL){
-        _socket->close();
+        _socket->disconnectFromHost();
     }else{
         packet->bytesToRead(_socket, this);
     }

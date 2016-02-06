@@ -35,13 +35,12 @@ QByteArray *Packet::emptyPacket()
 void Packet::write(QByteArray * c, const QString& str)
 {
     QByteArray data_str = str.toUtf8();
-    quint32 data_len = c->length();
     quint32 str_len = data_str.length();
 
-    c->append((char) (str_len >> 0)&0xFF);
-    c->append((char) (str_len >> 8)&0xFF);
-    c->append((char) (str_len >> 16)&0xFF);
     c->append((char) (str_len >> 24)&0xFF);
+    c->append((char) (str_len >> 16)&0xFF);
+    c->append((char) (str_len >> 8)&0xFF);
+    c->append((char) (str_len >> 0)&0xFF);
 
     c->append(data_str);
 }
@@ -86,6 +85,12 @@ void Packet::packetReady(QByteArray *data, ClientSocket *client)
 
 QString Packet::readString(QIODevice * device)
 {
+    if(device->bytesAvailable()<4){
+        if(!device->waitForReadyRead(-1)){
+            return QString();
+        }
+    }
+
     QByteArray data_len = device->read(4);
 
     quint32 len = (data_len.at(0) << 24)

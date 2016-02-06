@@ -15,7 +15,6 @@ ServerWindows::ServerWindows(QWidget *parent):
     ServerWindows(new QSettings("config.ini", QSettings::IniFormat),
                   parent)
 {
-    _loaded = false;
 }
 
 ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) : QMainWindow(parent),
@@ -25,6 +24,8 @@ ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) : QMainWindow(par
     game(new GameEngine(this))
 {
     ui->setupUi(this);
+    server   = new QTcpServer(this);
+    _loaded = false;
 }
 
 ServerWindows::~ServerWindows()
@@ -50,16 +51,17 @@ void ServerWindows::newConnection()
     client->setName(tr("Player-%1").arg(clientID));
     client->setServer(this);
 
-    ui->statusbar->showMessage("Connected client: " + clients.size());
+    ui->statusbar->showMessage(tr("Connected client: %1").arg(clients.size()));
 
     clientID ++;
+
+    this->sendMessage(tr("A new player joined the game"),"");
 }
 
 void ServerWindows::showEvent(QShowEvent *)
 {
     if(_loaded) return;
 
-    server   = new QTcpServer(this);
     clientID = 0;
 
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
