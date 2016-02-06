@@ -87,7 +87,7 @@ void Packet::packetReady(QByteArray *data, ClientSocket *client)
 QString Packet::readString(QIODevice * device)
 {
     if(device->bytesAvailable()<4){
-        if(!device->waitForReadyRead(-1)){
+        if(!device->waitForReadyRead(500)){
             return QString();
         }
     }
@@ -98,6 +98,12 @@ QString Packet::readString(QIODevice * device)
                 + (data_len.at(1) << 16)
                 + (data_len.at(2) << 8)
                 + data_len.at(3);
+
+    while(device->bytesAvailable() < len){
+        if(!device->waitForReadyRead(5000)){
+            return QString();
+        }
+    }
 
     return QString::fromUtf8(device->read(len));
 }
