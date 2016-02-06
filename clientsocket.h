@@ -9,6 +9,8 @@
 class ClientSocket : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int id READ id WRITE setId)
+    Q_PROPERTY(QString name READ name WRITE setName)
 public:
     explicit ClientSocket(QTcpSocket* socket, QObject *parent = 0);
 
@@ -20,6 +22,9 @@ public:
     ServerWindows *server() const;
     void setServer(ServerWindows *server);
 
+    QString name() const;
+    void setName(QString name);
+
 signals:
 
 public slots:
@@ -30,6 +35,7 @@ protected:
     ServerWindows* _server;
 
     int _id;
+    QString _name;
 
 };
 

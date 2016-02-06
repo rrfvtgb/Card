@@ -2,6 +2,9 @@
 
 #include <QApplication>
 
+#include <network/packet.h>
+#include <network/packetmanager.h>
+
 ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent),
     _socket(socket)
 {
@@ -32,7 +35,24 @@ void ClientSocket::write(const QByteArray& data)
 
 void ClientSocket::read()
 {
+    char id = _socket->read(1).at(0);
+    Packet* packet = PacketManager::getPacket(id);
 
+    if(packet == NULL){
+        _socket->close();
+    }else{
+        packet->bytesToRead(_socket, this);
+    }
+}
+
+QString ClientSocket::name() const
+{
+    return _name;
+}
+
+void ClientSocket::setName(QString name)
+{
+    _name = name;
 }
 
 ServerWindows *ClientSocket::server() const

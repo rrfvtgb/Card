@@ -47,6 +47,7 @@ void ServerWindows::newConnection()
 
     clients[clientID] = client;
     client->setId(clientID);
+    client->setName(tr("Player-%1").arg(clientID));
     client->setServer(this);
 
     ui->statusbar->showMessage("Connected client: " + clients.size());

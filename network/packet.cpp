@@ -38,9 +38,6 @@ void Packet::write(QByteArray * c, const QString& str)
     quint32 data_len = c->length();
     quint32 str_len = data_str.length();
 
-    // Max len = 2^32-1
-    c->reserve(data_len + 4 + str_len);
-
     c->append((char) (str_len >> 0)&0xFF);
     c->append((char) (str_len >> 8)&0xFF);
     c->append((char) (str_len >> 16)&0xFF);
@@ -56,16 +53,12 @@ void Packet::write(QByteArray * data, char value)
 
 void Packet::write(QByteArray *data, quint16 value)
 {
-    data->reserve(data->length() + 2);
-
     data->append((char) value&0xFF);
     data->append((char) (value >> 8)&0xFF);
 }
 
 void Packet::write(QByteArray *data, quint32 value)
 {
-    data->reserve(data->length() + 4);
-
     data->append((char) value&0xFF);
     data->append((char) (value >> 8)&0xFF);
     data->append((char) (value >> 16)&0xFF);
@@ -74,8 +67,6 @@ void Packet::write(QByteArray *data, quint32 value)
 
 void Packet::write(QByteArray *data, quint64 value)
 {
-    data->reserve(data->length() + 8);
-
     data->append((char) value&0xFF);
     data->append((char) (value >> 8)&0xFF);
     data->append((char) (value >> 16)&0xFF);
@@ -91,4 +82,16 @@ void Packet::packetReady(QByteArray *data, ClientSocket *client)
     client->write(*data);
 
     delete data;
+}
+
+QString Packet::readString(QIODevice * device)
+{
+    QByteArray data_len = device->read(4);
+
+    quint32 len = (data_len.at(0) << 24)
+                + (data_len.at(1) << 16)
+                + (data_len.at(2) << 8)
+                + data_len.at(3);
+
+    return QString::fromUtf8(device->read(len));
 }
