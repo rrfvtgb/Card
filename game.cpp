@@ -53,6 +53,17 @@ void Game::onCardClick(Card *c)
     }
 }
 
+void Game::reset()
+{
+    delete _network;
+    _network = NULL;
+
+    deck.clear();
+    hand.clear();
+    players.clear();
+    cards.clear();
+}
+
 void Game::setPlayerID(int value)
 {
     playerID = value;

@@ -32,16 +32,17 @@ void ClientSocket::sendMessage(const QString & message)
 
 void ClientSocket::readReady()
 {
-    if(_game->socket()->bytesAvailable() < 1)
-        return; // No packet
+    while(_game->socket()->bytesAvailable() > 1){
 
-    int id = _game->socket()->read(1).at(0);
+        int id = _game->socket()->read(1).at(0);
 
-    Packet* p = PacketManager::getPacket(id);
+        Packet* p = PacketManager::getPacket(id);
 
-    if(p != NULL){
-        p->bytesToRead(_game->socket(), this);
-    }else{
-        qDebug() << "Invalid packet "<<id;
+        if(p != NULL){
+            p->bytesToRead(_game->socket(), this);
+        }else{
+            qDebug() << "Invalid packet "<<id;
+			_game->socket()->disconnectFromHost();
+        }
     }
 }

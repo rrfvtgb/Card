@@ -60,6 +60,8 @@ public slots:
     void appendCard(Card* c);
     void onCardClick(Card *c);
 
+    void reset();
+
 private:
     QTcpSocket *_socket;
     QHash<int, Player*> players;

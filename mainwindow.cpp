@@ -106,6 +106,8 @@ void MainWindow::resetUI(){
     connect(game, SIGNAL(disableCard(Card*)),       this, SLOT(disableCard(Card*)));
     connect(game, SIGNAL(enableCard(Card*)),        this, SLOT(enableCard(Card*)));
     connect(game, SIGNAL(newPlayer(Player*)),       this, SLOT(addNewPlayer(Player*)));
+
+    game->reset();
 }
 
 void MainWindow::onConnect(){

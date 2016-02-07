@@ -37,7 +37,11 @@
     <widget class="QListView" name="chat"/>
    </item>
    <item>
-    <widget class="QLineEdit" name="message"/>
+    <widget class="QLineEdit" name="message">
+     <property name="maxLength">
+      <number>1000</number>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
