@@ -4,7 +4,7 @@
 #include <clientsocket.h>
 
 Packet01Message::Packet01Message():
-    Packet(1)
+    Packet(0x01)
 {
 
 }
@@ -18,7 +18,7 @@ void Packet01Message::bytesToRead(QIODevice *socket, ClientSocket *client)
 void Packet01Message::bytesToWrite(ClientSocket * c, const QString &playername, const QString &message)
 {
     QByteArray* data = this->emptyPacket();
-    data->reserve(1 + playername.capacity() + message.capacity());
+    data->reserve(9 + playername.capacity() + message.capacity());
 
     this->write(data, playername);
     this->write(data, message);

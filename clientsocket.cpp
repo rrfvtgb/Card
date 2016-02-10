@@ -37,14 +37,37 @@ void ClientSocket::write(const QByteArray& data)
 
 void ClientSocket::read()
 {
-    char id = _socket->read(1).at(0);
-    Packet* packet = PacketManager::getPacket(id);
+    while(_socket->bytesAvailable() > 0){
+        char id = _socket->read(1).at(0);
+        Packet* packet = PacketManager::getPacket(id);
 
-    if(packet == NULL){
-        _socket->disconnectFromHost();
-    }else{
-        packet->bytesToRead(_socket, this);
+        if(packet == NULL){
+            _socket->disconnectFromHost();
+            break;
+        }else{
+            packet->bytesToRead(_socket, this);
+        }
     }
+}
+
+bool ClientSocket::isReady() const
+{
+    return _ready;
+}
+
+void ClientSocket::setReady(bool ready)
+{
+    _ready = ready;
+}
+
+void ClientSocket::ready()
+{
+    _ready = true;
+}
+
+void ClientSocket::unprepared()
+{
+    _ready = false;
 }
 
 QString ClientSocket::name() const

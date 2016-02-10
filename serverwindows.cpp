@@ -55,7 +55,7 @@ void ServerWindows::newConnection()
 
     clientID ++;
 
-    this->sendMessage(tr("A new player joined the game"),"");
+    this->sendMessage(tr("A new player joined the game"));
 }
 
 void ServerWindows::showEvent(QShowEvent *)
@@ -81,6 +81,11 @@ void ServerWindows::closeEvent(QCloseEvent *)
     emit closed(this);
 }
 
+ClientSocket *ServerWindows::getBroadcastClient() const
+{
+    return _broadcast;
+}
+
 QHash<int, ClientSocket*> ServerWindows::getClients() const
 {
     return clients;
@@ -94,6 +99,11 @@ void ServerWindows::sendMessage(const QString &playername, const QString &messag
     m->bytesToWrite(_broadcast, playername, message);
 
     ui->text_chat->appendHtml("<b style='color:#6a6;'>&lt;"+playername.toHtmlEscaped()+"&gt;</b> "+message.toHtmlEscaped());
+}
+
+void ServerWindows::sendMessage(const QString &message)
+{
+    ui->text_chat->appendHtml("<i>"+message.toHtmlEscaped()+"</i>");
 }
 
 QSettings *ServerWindows::config() const
