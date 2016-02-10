@@ -2,6 +2,9 @@
 
 #include <QApplication>
 
+#include <network/packet.h>
+#include <network/packetmanager.h>
+
 ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent),
     _socket(socket)
 {
@@ -11,7 +14,9 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent
         // HEADER
         socket->write((QApplication::applicationName()
                       +" v"+QApplication::applicationVersion()
-                      +"\n").toUtf8());
+                      +"\n").toLocal8Bit());
+
+        qDebug() << "New player connected";
     }
 }
 
@@ -32,7 +37,47 @@ void ClientSocket::write(const QByteArray& data)
 
 void ClientSocket::read()
 {
+    while(_socket->bytesAvailable() > 0){
+        char id = _socket->read(1).at(0);
+        Packet* packet = PacketManager::getPacket(id);
 
+        if(packet == NULL){
+            _socket->disconnectFromHost();
+            break;
+        }else{
+            packet->bytesToRead(_socket, this);
+        }
+    }
+}
+
+bool ClientSocket::isReady() const
+{
+    return _ready;
+}
+
+void ClientSocket::setReady(bool ready)
+{
+    _ready = ready;
+}
+
+void ClientSocket::ready()
+{
+    _ready = true;
+}
+
+void ClientSocket::unprepared()
+{
+    _ready = false;
+}
+
+QString ClientSocket::name() const
+{
+    return _name;
+}
+
+void ClientSocket::setName(QString name)
+{
+    _name = name;
 }
 
 ServerWindows *ClientSocket::server() const

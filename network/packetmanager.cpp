@@ -12,7 +12,7 @@ Packet **PacketManager::initPacket()
 {
     Packet** p = new Packet*[256];
 
-    for(int i; i<256; i++){
+    for(int i=0; i<256; i++){
         p[i] = NULL;
     }
 

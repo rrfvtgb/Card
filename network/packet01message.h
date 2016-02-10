@@ -9,7 +9,7 @@ public:
     Packet01Message();
 
 public slots:
-    void bytesToRead(const QByteArray&, ClientSocket*);
+    void bytesToRead(QIODevice*socket, ClientSocket*client);
     void bytesToWrite(ClientSocket*c, const QString& playername, const QString& message);
 };
 

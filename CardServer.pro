@@ -22,7 +22,10 @@ SOURCES += main.cpp\
     network/packetmanager.cpp \
     network/packet01message.cpp \
     broadcastsocket.cpp \
-    gameengine.cpp
+    gameengine.cpp \
+    network/packet20rename.cpp \
+    network/packet02information.cpp \
+    packet0fstart.cpp
 
 HEADERS  += optionwindows.h \
     windowcontroller.h \
@@ -32,7 +35,10 @@ HEADERS  += optionwindows.h \
     network/packetmanager.h \
     network/packet01message.h \
     broadcastsocket.h \
-    gameengine.h
+    gameengine.h \
+    network/packet20rename.h \
+    network/packet02information.h \
+    packet0fstart.h
 
 FORMS    += optionwindows.ui \
     serverwindows.ui

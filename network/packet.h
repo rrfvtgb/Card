@@ -5,6 +5,7 @@
 #include <QObject>
 
 class ClientSocket;
+class QIODevice;
 
 class Packet: public QObject
 {
@@ -19,7 +20,7 @@ public:
     int getId();
 
 public slots:
-    virtual void bytesToRead(const QByteArray&, ClientSocket*) = 0;
+    virtual void bytesToRead(QIODevice*, ClientSocket*) = 0;
 
 protected:
     quint8 _id;
@@ -34,8 +35,8 @@ protected:
     /// Send packet and delete it from memory
     void packetReady(QByteArray* data, ClientSocket*client);
 
-    QString readString(const QByteArray&, int &index);
-    quint8 readuint8(const QByteArray&, int &index);
+    QString readString(QIODevice* device);
+    quint8 readuint8(QIODevice*);
 };
 
 #endif // PACKET_H

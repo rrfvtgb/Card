@@ -36,52 +36,61 @@ Used to send and read data from an user
 Packet
 ------
 
-[ID] [Read/Write] -> [Description]
-	[Data Type] <Data Type> ... <Data Type>
+[ID] [Read/Write/Broadcast] -> [Description] <Server coding Done>
+	Read:  [Data Type] <Data Type> ... <Data Type>
+	Write: [Data Type] <Data Type> ... <Data Type>
 
-0x01 [rw] -> Message (chat)
+0x01 [rwb] -> Message (chat) <Done>
+	[String]
+	[String] [String]
+
+0x02 [-w?] -> Message (information)
 	[String]
 
-0x0F [-w] -> Start signal
+0x0F [-w-] -> Start signal
 	[Int] [Int]
 
-0x10 [rw] -> Add card
+0x10 [rw-] -> Add card
+	[Array <Int>]
 	[Array <Int>]
 	
-0x11 [-w] -> Add card info
+0x11 [-w-] -> Add card info
 	[Int] [Int] [Int]  [Int] [Int] [String] [String]
 		
-0x18 [-w] -> Enable card
+0x18 [rw-] -> Enable card
+	[Int]
 	[Int]
 	
-0x19 [-w] -> Disable card
+0x19 [rw-] -> Disable card
+	[Int]
 	[Int]
 
-0x20 [rw] -> Rename player
+0x20 [rwb] -> Rename player <Done>
 	[String]
+	[Int] [String]
 
-0x21 [rw] -> Player ready
+0x21 [-wb] -> Player ready
 	[Int]
 
-0x22 [rw] -> Player unprepared
+0x22 [-wb] -> Player unprepared
 	[Int]
 
-0x28 [-w] -> Set ressource to player (Mana)
+0x28 [-wb] -> Set ressource to player (Mana)
 	[Int] [Int]
 	
-0x29 [-w] -> Set ressource to player (Energy)
+0x29 [-wb] -> Set ressource to player (Energy)
 	[Int] [Int]
 
-0x30 [-w] -> Add creature
+0x30 [-wb] -> Add creature
 	[Int] [Int] [Int] [Int] [Int] [Int]
 	
-0x31 [-w] -> Remove creature
+0x31 [-wb] -> Remove creature
 	[Int] [Int]
 
-0x38 [-w] -> Change creature (Damage)
+0x38 [-wb] -> Change creature (Damage)
 	[Int] [Int] [Int]
 
-0x39 [-w] -> Change creature (HP)
+0x39 [-wb] -> Change creature (HP)
 	[Int] [Int] [Int]
 
 

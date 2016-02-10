@@ -35,6 +35,9 @@ public:
     QHash<int, ClientSocket*> getClients() const;
 
     void sendMessage(const QString& playername, const QString& message);
+    void sendMessage(const QString& message);
+
+    ClientSocket *getBroadcastClient() const;
 
 signals:
     void closed(QMainWindow*);

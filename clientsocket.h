@@ -9,6 +9,10 @@
 class ClientSocket : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int id READ id WRITE setId)
+    Q_PROPERTY(QString name READ name WRITE setName)
+    Q_PROPERTY(bool ready READ isReady WRITE setReady
+               RESET unprepared NOTIFY becameReady)
 public:
     explicit ClientSocket(QTcpSocket* socket, QObject *parent = 0);
 
@@ -20,7 +24,17 @@ public:
     ServerWindows *server() const;
     void setServer(ServerWindows *server);
 
+    QString name() const;
+    void setName(QString name);
+
+    bool isReady() const;
+    void ready();
+    void unprepared();
+    void setReady(bool ready);
+
+
 signals:
+    void becameReady();
 
 public slots:
     void read();
@@ -30,6 +44,8 @@ protected:
     ServerWindows* _server;
 
     int _id;
+    QString _name;
+    bool _ready;
 
 };
 

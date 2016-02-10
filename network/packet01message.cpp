@@ -1,19 +1,24 @@
 #include "packet01message.h"
 
-Packet01Message::Packet01Message()
+#include <QIODevice>
+#include <clientsocket.h>
+
+Packet01Message::Packet01Message():
+    Packet(0x01)
 {
 
 }
 
-void Packet01Message::bytesToRead(const QByteArray &, ClientSocket *)
+void Packet01Message::bytesToRead(QIODevice *socket, ClientSocket *client)
 {
-
+    QString message = this->readString(socket);
+    client->server()->sendMessage(client->name(), message);
 }
 
 void Packet01Message::bytesToWrite(ClientSocket * c, const QString &playername, const QString &message)
 {
     QByteArray* data = this->emptyPacket();
-    data->reserve(1);
+    data->reserve(9 + playername.capacity() + message.capacity());
 
     this->write(data, playername);
     this->write(data, message);
