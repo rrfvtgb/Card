@@ -26,11 +26,11 @@ OptionWindows::~OptionWindows()
 
 void OptionWindows::showEvent(QShowEvent *)
 {
-    ui->input_autohost->setChecked(config->value("autohost", false).toBool());
+    ui->input_autohost->setChecked(config->value("autohost", true).toBool());
 
     ui->input_port->setValue(config->value("port", 6112).toInt());
 
-    ui->input_scriptfolder->setText(config->value("scriptfolder", QDir::currentPath()).toString());
+    ui->input_scriptfolder->setText(config->value("scriptfolder", QDir::currentPath()+"/data").toString());
 }
 
 void OptionWindows::closeEvent(QCloseEvent *)

@@ -15,6 +15,7 @@ class ClientSocket : public QObject
                RESET unprepared NOTIFY becameReady)
 public:
     explicit ClientSocket(QTcpSocket* socket, QObject *parent = 0);
+    ~ClientSocket();
 
     int id() const;
     void setId(int id);
@@ -35,9 +36,13 @@ public:
 
 signals:
     void becameReady();
+    void disconnected(ClientSocket*);
 
 public slots:
     void read();
+
+protected slots:
+    void socketDisconnected();
 
 protected:
     QTcpSocket* _socket;

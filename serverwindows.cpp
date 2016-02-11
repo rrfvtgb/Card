@@ -20,12 +20,15 @@ ServerWindows::ServerWindows(QWidget *parent):
 ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) : QMainWindow(parent),
     ui(new Ui::ServerWindows),
     _config(conf),
-    _broadcast(new BroadcastSocket(this)),
-    game(new GameEngine(this))
+    _broadcast(new BroadcastSocket(this))
 {
     ui->setupUi(this);
     server   = new QTcpServer(this);
     _loaded = false;
+
+
+    game = new GameEngine(this);
+    connect(this, SIGNAL(newClient(ClientSocket*)), game, SLOT(connectedClient(ClientSocket*)));
 }
 
 ServerWindows::~ServerWindows()
@@ -56,6 +59,35 @@ void ServerWindows::newConnection()
     clientID ++;
 
     this->sendMessage(tr("A new player joined the game"));
+    emit newClient(client);
+
+    connect(client, SIGNAL(disconnected(ClientSocket*)), this, SLOT(disconnected(ClientSocket*)));
+}
+
+void ServerWindows::log(const QString &message)
+{
+    ui->text_console->appendPlainText(message);
+}
+
+void ServerWindows::warn(const QString &message)
+{
+    ui->text_console->appendHtml("<pre style='color:#FFB838;'>"+message.toHtmlEscaped()+"</pre>");
+}
+
+void ServerWindows::error(const QString &message)
+{
+    ui->text_console->appendHtml("<pre style='color:#FB2727;'>"+message.toHtmlEscaped()+"</pre>");
+}
+
+void ServerWindows::disconnected(ClientSocket *client)
+{
+    emit disconnectedClient(client);
+
+    // Update
+    clients.remove(client->id());
+    ui->statusbar->showMessage(tr("Connected client: %1").arg(clients.size()));
+
+    client->deleteLater();
 }
 
 void ServerWindows::showEvent(QShowEvent *)
