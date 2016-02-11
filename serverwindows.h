@@ -42,6 +42,9 @@ signals:
 
 public slots:
     void newConnection();
+    void log(const QString &message);
+    void warn(const QString &message);
+    void error(const QString &message);
 
 protected slots:
     void disconnected(ClientSocket*client);

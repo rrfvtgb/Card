@@ -28,6 +28,8 @@ static QScriptValue clientsList(QScriptContext *context, QScriptEngine *engine)
                                  engine->newQObject(client));
             }
 
+            list.prototype().setProperty("size", engine->newVariant(hash.size()));
+
             return list;
         }
     }
@@ -134,14 +136,27 @@ void GameEngine::loadCard(QString scriptpath)
 void GameEngine::checkError()
 {
     if(_engine->hasUncaughtException()){
-        qDebug("%s on %s:%d",
-               _engine->uncaughtException().toString().toStdString().c_str(),
-               _engine->uncaughtException().property("fileName").toString().toStdString().c_str(),
-               _engine->uncaughtExceptionLineNumber());
+        QDir script(_server->config()->value("scriptfolder").toString());
+        _server->error(tr("%1 on %2:%3").arg(
+                _engine->uncaughtException().toString(),
+                script.relativeFilePath(_engine->uncaughtException().property("fileName").toString()),
+                QString::number(_engine->uncaughtExceptionLineNumber())));
 
         QStringList l = _engine->uncaughtExceptionBacktrace();
         foreach(QString trace, l){
-            qDebug("  %s", trace.toStdString().c_str());
+            int filestart = trace.indexOf(" at ")+4;
+            int fileend = trace.indexOf(":", filestart+7);
+
+            if(fileend != -1){
+                QString file = trace.mid(filestart, fileend-filestart);
+
+                _server->error(tr("  %1")
+                        .arg(trace.left(filestart)
+                            + script.relativeFilePath(file)
+                            + trace.mid(fileend)));
+            }else{
+                _server->error(tr("  %1").arg(trace));
+            }
         }
     }
 }
