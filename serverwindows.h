@@ -14,13 +14,9 @@ class QTcpServer;
 class ClientSocket;
 class GameEngine;
 
-typedef QHash<int, ClientSocket*> ClientHash;
-
 class ServerWindows : public QMainWindow
 {
     Q_OBJECT
-
-    Q_PROPERTY(ClientHash players READ getClients)
 public:
     explicit ServerWindows(QWidget *parent = 0);
 
@@ -41,9 +37,14 @@ public:
 
 signals:
     void closed(QMainWindow*);
+    void newClient(ClientSocket*);
+    void disconnectedClient(ClientSocket*);
 
 public slots:
     void newConnection();
+
+protected slots:
+    void disconnected(ClientSocket*client);
 
 protected:
     void showEvent(QShowEvent *);

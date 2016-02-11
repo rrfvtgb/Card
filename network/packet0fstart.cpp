@@ -11,7 +11,7 @@ void Packet0FStart::bytesToRead(QIODevice *, ClientSocket *)
 
 }
 
-void Packet0FStart::bytesToWrite(ClientSocket *c, const int &playerId)
+void Packet0FStart::bytesToWrite(ClientSocket *, const int &)
 {
 
 }

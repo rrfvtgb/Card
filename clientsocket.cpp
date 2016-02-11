@@ -10,14 +10,18 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent
 {
     if(socket != NULL){
         connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
+        connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
 
         // HEADER
         socket->write((QApplication::applicationName()
                       +" v"+QApplication::applicationVersion()
                       +"\n").toLocal8Bit());
-
-        qDebug() << "New player connected";
     }
+}
+
+ClientSocket::~ClientSocket()
+{
+    delete _socket;
 }
 
 int ClientSocket::id() const
@@ -50,6 +54,11 @@ void ClientSocket::read()
     }
 }
 
+void ClientSocket::socketDisconnected()
+{
+    emit disconnected(this);
+}
+
 bool ClientSocket::isReady() const
 {
     return _ready;
@@ -57,12 +66,16 @@ bool ClientSocket::isReady() const
 
 void ClientSocket::setReady(bool ready)
 {
+    if(ready && !_ready){
+        emit becameReady();
+    }
     _ready = ready;
 }
 
 void ClientSocket::ready()
 {
     _ready = true;
+    emit becameReady();
 }
 
 void ClientSocket::unprepared()

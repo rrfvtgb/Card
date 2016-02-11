@@ -18,31 +18,32 @@ SOURCES += main.cpp\
     windowcontroller.cpp \
     serverwindows.cpp \
     clientsocket.cpp \
+    broadcastsocket.cpp \
+    gameengine.cpp \
     network/packet.cpp \
     network/packetmanager.cpp \
     network/packet01message.cpp \
-    broadcastsocket.cpp \
-    gameengine.cpp \
-    network/packet20rename.cpp \
     network/packet02information.cpp \
-    packet0fstart.cpp
+    network/packet0fstart.cpp \
+    network/packet20rename.cpp
 
 HEADERS  += optionwindows.h \
     windowcontroller.h \
     serverwindows.h \
     clientsocket.h \
+    broadcastsocket.h \
+    gameengine.h \
     network/packet.h \
     network/packetmanager.h \
     network/packet01message.h \
-    broadcastsocket.h \
-    gameengine.h \
-    network/packet20rename.h \
     network/packet02information.h \
-    packet0fstart.h
+    network/packet0fstart.h \
+    network/packet20rename.h
 
 FORMS    += optionwindows.ui \
     serverwindows.ui
 
+# Proper build folder
 Release:DESTDIR = release
 Release:OBJECTS_DIR = release/.obj
 Release:MOC_DIR = release/.moc
@@ -54,3 +55,10 @@ Debug:OBJECTS_DIR = debug/.obj
 Debug:MOC_DIR = debug/.moc
 Debug:RCC_DIR = debug/.rcc
 Debug:UI_DIR = debug/.ui
+
+# Export data
+copydata.commands = $(COPY_DIR) $$shell_path($$PWD/data) $$shell_path($$OUT_PWD/data)
+first.depends = $(first) copydata
+export(first.depends)
+export(copydata.commands)
+QMAKE_EXTRA_TARGETS += first copydata

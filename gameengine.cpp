@@ -1,3 +1,4 @@
+#include "clientsocket.h"
 #include "gameengine.h"
 #include "serverwindows.h"
 
@@ -10,12 +11,41 @@
 #include <network/packet.h>
 #include <network/packetmanager.h>
 
+static QScriptValue clientsList(QScriptContext *context, QScriptEngine *engine)
+{
+    QScriptValue callee = context->thisObject();
+    QObject* obj = callee.toQObject();
+
+    if(obj != 0){
+        ServerWindows* serv = dynamic_cast<ServerWindows*>(obj);
+
+        if(serv != NULL){
+            QScriptValue list = engine->newObject();
+            QHash<int, ClientSocket*> hash = serv->getClients();
+
+            foreach(ClientSocket* client, hash){
+                list.setProperty(client->id(),
+                                 engine->newQObject(client));
+            }
+
+            return list;
+        }
+    }
+
+    return engine->newObject();
+}
+
 GameEngine::GameEngine(ServerWindows *server) : QObject(server),
     _engine(new QScriptEngine),
     _server(server)
 {
+    // Register all object
     this->initMain();
     this->initCards();
+    this->initPacket();
+
+    // Call script init
+    this->scriptInit();
 }
 
 ServerWindows *GameEngine::server() const
@@ -28,11 +58,31 @@ void GameEngine::setServer(ServerWindows *server)
     _server = server;
 }
 
+QScriptValue GameEngine::gameObject()
+{
+    return _engine->globalObject().property("game");
+}
+
+void GameEngine::connectedClient(ClientSocket *client)
+{
+    QScriptValue game = this->gameObject();
+    QScriptValue arg = _engine->newArray();
+    arg.setProperty(0, _engine->newQObject(client));
+
+    game.property("newPlayer")
+        .call(game, arg);
+
+    checkError();
+}
+
 void GameEngine::initMain()
 {
     QScriptValue game = loadObject(_server->config()->value("scriptfolder").toString() + "/game.js");
+    QScriptValue server = _engine->newQObject(_server);
+    server.setProperty("players", _engine->newFunction(clientsList),
+                       QScriptValue::PropertyGetter);
 
-    _engine->globalObject().setProperty("server", _engine->newQObject(_server));
+    _engine->globalObject().setProperty("server", server);
     _engine->globalObject().setProperty("game",   game);
     _engine->globalObject().setProperty("card",   _engine->newArray());
 
@@ -62,6 +112,12 @@ void GameEngine::initCards()
     foreach(QString card, l){
         this->loadCard(script.canonicalPath()+"/"+card);
     }
+}
+
+void GameEngine::scriptInit()
+{
+    gameObject().property("init").call();
+    checkError();
 }
 
 void GameEngine::loadCard(QString scriptpath)
