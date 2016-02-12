@@ -44,24 +44,24 @@ Packet
 	[String]
 	[String] [String]
 
-0x02 [-w?] -> Message (information)
+0x02 [-w?] -> Message (information) <WIP>
 	[String]
 
-0x0F [-w-] -> Start signal
+0x0F [-w-] -> Start signal <WIP>
 	[Int]
 
-0x10 [rw-] -> Add card
+0x10 [rw-] -> Add card <WIP>
 	[Array <Int>]
 	[Array <Int>]
 	
-0x11 [-w-] -> Add card info
+0x11 [-w-] -> Add card info <WIP>
 	[Int] [Int] [Int]  [Int] [Int] [String] [String]
 		
-0x18 [rw-] -> Enable card
+0x18 [rw-] -> Enable card <WIP>
 	[Int]
 	[Int]
 	
-0x19 [rw-] -> Disable card
+0x19 [rw-] -> Disable card <WIP>
 	[Int]
 	[Int]
 
@@ -69,28 +69,28 @@ Packet
 	[String]
 	[Int] [String]
 
-0x21 [-wb] -> Player ready
+0x21 [-wb] -> Player ready <WIP>
 	[Int]
 
-0x22 [-wb] -> Player unprepared
+0x22 [-wb] -> Player unprepared <WIP>
 	[Int]
 
-0x28 [-wb] -> Set ressource to player (Mana)
+0x28 [-wb] -> Set ressource to player (Mana) <WIP>
 	[Int] [Int]
 	
-0x29 [-wb] -> Set ressource to player (Energy)
+0x29 [-wb] -> Set ressource to player (Energy) <WIP>
 	[Int] [Int]
 
-0x30 [-wb] -> Add creature
+0x30 [-wb] -> Add creature <WIP>
 	[Int] [Int] [Int] [Int] [Int] [Int]
 	
-0x31 [-wb] -> Remove creature
+0x31 [-wb] -> Remove creature <WIP>
 	[Int] [Int]
 
-0x38 [-wb] -> Change creature (Damage)
+0x38 [-wb] -> Change creature (Damage) <WIP>
 	[Int] [Int] [Int]
 
-0x39 [-wb] -> Change creature (HP)
+0x39 [-wb] -> Change creature (HP) <WIP>
 	[Int] [Int] [Int]
 
 

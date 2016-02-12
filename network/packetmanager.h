@@ -9,7 +9,19 @@ class Packet;
 class Packet01Message;
 class Packet02Information;
 class Packet0FStart;
+class Packet10AddCard;
+class Packet11CardInfo;
+class Packet18EnableCard;
+class Packet19DisableCard;
 class Packet20Rename;
+class Packet21PlayerReady;
+class Packet22PlayerUnprepared;
+class Packet28PlayerMana;
+class Packet29PlayerEnergy;
+class Packet30Creature;
+class Packet31RemoveCreature;
+class Packet38CreatureDamage;
+class Packet39HP;
 
 class PacketManager
 {
