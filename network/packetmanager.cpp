@@ -1,5 +1,7 @@
 #include "packetmanager.h"
+
 #include "packet01message.h"
+#include "packet02information.h"
 
 Packet *PacketManager::getPacket(quint8 id)
 {
@@ -17,6 +19,7 @@ Packet **PacketManager::initPacket()
     }
 
     p[1] = new Packet01Message();
+    p[2] = new Packet02Information();
 
     return p;
 }

@@ -30,9 +30,6 @@ public:
 
     QHash<int, ClientSocket*> getClients() const;
 
-    void sendMessage(const QString& playername, const QString& message);
-    void sendMessage(const QString& message);
-
     ClientSocket *getBroadcastClient() const;
 
 signals:
@@ -40,11 +37,16 @@ signals:
     void newClient(ClientSocket*);
     void disconnectedClient(ClientSocket*);
 
-public slots:
+protected slots:
     void newConnection();
+
+public slots:
     void log(const QString &message);
     void warn(const QString &message);
     void error(const QString &message);
+
+    void sendMessage(const QString& playername, const QString& message);
+    void sendMessage(const QString& message);
 
 protected slots:
     void disconnected(ClientSocket*client);

@@ -5,6 +5,12 @@
 
 class Packet;
 
+// Forward declaration of all packet
+class Packet01Message;
+class Packet02Information;
+class Packet0FStart;
+class Packet20Rename;
+
 class PacketManager
 {
 public:

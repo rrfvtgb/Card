@@ -9,6 +9,7 @@
 #include <QTcpServer>
 
 #include <network/packet01message.h>
+#include <network/packet02information.h>
 #include <network/packetmanager.h>
 
 ServerWindows::ServerWindows(QWidget *parent):
@@ -47,6 +48,8 @@ void ServerWindows::broadcast(const QByteArray &data)
 
 void ServerWindows::newConnection()
 {
+    this->sendMessage(tr("A new player joined the game"));
+
     ClientSocket* client = new ClientSocket(server->nextPendingConnection());
 
     clients[clientID] = client;
@@ -58,7 +61,6 @@ void ServerWindows::newConnection()
 
     clientID ++;
 
-    this->sendMessage(tr("A new player joined the game"));
     emit newClient(client);
 
     connect(client, SIGNAL(disconnected(ClientSocket*)), this, SLOT(disconnected(ClientSocket*)));
@@ -81,6 +83,9 @@ void ServerWindows::error(const QString &message)
 
 void ServerWindows::disconnected(ClientSocket *client)
 {
+    // Add a message for it
+    this->sendMessage(tr("%1 left the game").arg(client->name()));
+
     emit disconnectedClient(client);
 
     // Update
@@ -135,6 +140,11 @@ void ServerWindows::sendMessage(const QString &playername, const QString &messag
 
 void ServerWindows::sendMessage(const QString &message)
 {
+    Packet02Information* m = dynamic_cast<Packet02Information*>
+            (PacketManager::getPacket(0x02));
+
+    m->bytesToWrite(_broadcast, message);
+
     ui->text_chat->appendHtml("<i>"+message.toHtmlEscaped()+"</i>");
 }
 

@@ -48,7 +48,7 @@ Packet
 	[String]
 
 0x0F [-w-] -> Start signal
-	[Int] [Int]
+	[Int]
 
 0x10 [rw-] -> Add card
 	[Array <Int>]

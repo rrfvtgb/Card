@@ -52,7 +52,7 @@
 		
 		p.becameReady.connect(this.handleEvent("playerReady", p))
 		
-		if(size >= 2){
+		if(size == 2){
 			server.log("2 player detected!")
 			
 			for(var i in players){
@@ -63,7 +63,7 @@
 			}
 			
 			p.ready = false;
-		}else{
+		}else if(size < 2){
 			server.log("Waiting for "+(2-size)+" player(s)")
 		}
 	}
