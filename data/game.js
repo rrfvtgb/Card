@@ -14,15 +14,7 @@
 		}
 	},
 	init: function(){
-		// print -> Console output
-		// server.log -> MainWindowOutput
 		server.log("Init script!")
-		// print(game)
-		// print(server)
-		// print(server)
-		// print(card)
-		// print(packet)
-		// print(packet[1])
 	},
 	handleEvent:function(target){ // Handle event, may add some extra arguments
 		var game = this;

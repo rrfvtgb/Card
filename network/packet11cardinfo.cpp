@@ -11,12 +11,12 @@ void Packet11CardInfo::bytesToRead(QIODevice *, ClientSocket *)
 }
 
 void Packet11CardInfo::bytesToWrite(ClientSocket *c,
-                                    quint8 cardID, quint8 type, quint8 speed,
+                                    quint16 cardID, quint8 type, quint8 speed,
                                     quint8 mana, quint8 energy,
                                     const QString &name, const QString &tooltip)
 {
     QByteArray* data = this->emptyPacket();
-    data->reserve(6 + name.capacity() + tooltip.capacity());
+    data->reserve(7 + name.capacity() + tooltip.capacity());
 
     this->write(data, cardID);
     this->write(data, type);

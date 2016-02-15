@@ -1,16 +1,18 @@
 #include "packet19disablecard.h"
 
+#include <clientsocket.h>
+
 Packet19DisableCard::Packet19DisableCard():Packet(0x19)
 {
 
 }
 
-void Packet19DisableCard::bytesToRead(QIODevice *, ClientSocket *)
+void Packet19DisableCard::bytesToRead(QIODevice *, ClientSocket *c)
 {
-    /// TODO: Read card
+    c->unselectCard();
 }
 
-void Packet19DisableCard::bytesToWrite(ClientSocket *c, quint8 card)
+void Packet19DisableCard::bytesToWrite(ClientSocket *c, quint16 card)
 {
     QByteArray* data = this->emptyPacket();
 

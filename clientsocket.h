@@ -34,6 +34,10 @@ public:
     void setReady(bool ready);
 
 
+    quint16 card() const;
+    void setCard(const quint16 &card);
+    void unselectCard();
+
 signals:
     void becameReady();
     void disconnected(ClientSocket*);
@@ -48,10 +52,10 @@ protected:
     QTcpSocket* _socket;
     ServerWindows* _server;
 
+    quint16 _card;
     int _id;
     QString _name;
     bool _ready;
-
 };
 
 #endif // CLIENTSOCKET_H

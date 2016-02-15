@@ -10,7 +10,7 @@ public:
 
 public slots:
     void bytesToRead(QIODevice*, ClientSocket*);
-    void bytesToWrite(ClientSocket*c, const QList<quint8>& card);
+    void bytesToWrite(ClientSocket*c, const QList<quint16>& card);
 };
 
 #endif // PACKET10ADDCARD_H

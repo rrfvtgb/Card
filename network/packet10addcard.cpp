@@ -9,16 +9,16 @@ Packet10AddCard::Packet10AddCard():Packet(0x10)
 
 void Packet10AddCard::bytesToRead(QIODevice *, ClientSocket *)
 {
-    /// TODO: Throw Error
+    /// TODO: Read Card (Array)
 }
 
-void Packet10AddCard::bytesToWrite(ClientSocket *c, const QList<quint8> &card)
+void Packet10AddCard::bytesToWrite(ClientSocket *c, const QList<quint16> &card)
 {
     QByteArray* data = this->emptyPacket();
-    data->reserve(1 + card.size());
+    data->reserve(3 + card.size()*2);
 
-    this->write(data, (quint8) card.size());
-    foreach (quint8 id, card) {
+    this->write(data, (quint16) card.size());
+    foreach (quint16 id, card) {
         this->write(data, id);
     }
 

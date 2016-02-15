@@ -11,7 +11,7 @@ public:
 public slots:
     void bytesToRead(QIODevice*, ClientSocket*);
     void bytesToWrite(ClientSocket*c,
-                      quint8 cardID, quint8 type, quint8 speed,
+                      quint16 cardID, quint8 type, quint8 speed,
                       quint8 mana, quint8 energy,
                       const QString&name, const QString&tooltip);
 };

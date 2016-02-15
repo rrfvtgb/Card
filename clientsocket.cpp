@@ -59,6 +59,28 @@ void ClientSocket::socketDisconnected()
     emit disconnected(this);
 }
 
+quint16 ClientSocket::card() const
+{
+    return _card;
+}
+
+void ClientSocket::setCard(const quint16 &card)
+{
+    _card = card;
+
+    if(card == 0){
+        this->setReady(false);
+    }else{
+        this->setReady(true);
+    }
+}
+
+void ClientSocket::unselectCard()
+{
+    _card = 0;
+    this->unprepared();
+}
+
 bool ClientSocket::isReady() const
 {
     return _ready;
