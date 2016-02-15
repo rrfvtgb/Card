@@ -21,6 +21,12 @@ public:
         Classic
     };
 
+    enum NetworkInformation{
+        EnableCard,
+        DisableCard,
+        RemoveCard
+    };
+
 
     explicit Game(QObject *parent = 0);
     ~Game();
@@ -40,6 +46,7 @@ public:
     Player* playerData();
 
     void setPlayerID(int value);
+    void changeUI(const NetworkInformation& information, Card* card);
 
 signals:
     void receiveMessage(QString message);

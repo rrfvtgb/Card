@@ -10,6 +10,11 @@ CompatibilitySocket::CompatibilitySocket(Game *parent) : SocketController(parent
 
 }
 
+void CompatibilitySocket::setBuffer(const QString &buffer)
+{
+    this->buffer = buffer;
+}
+
 void CompatibilitySocket::readReady()
 {
     QTcpSocket* socket = _game->socket();

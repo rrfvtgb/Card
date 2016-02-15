@@ -9,6 +9,7 @@ class CompatibilitySocket : public SocketController
 public:
     explicit CompatibilitySocket(Game *parent);
 
+    void setBuffer(const QString& buffer);
 signals:
 
 public slots:

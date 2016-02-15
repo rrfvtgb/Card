@@ -43,6 +43,7 @@ void ClientSocket::readReady()
         }else{
             qDebug() << "Invalid packet "<<id;
 			_game->socket()->disconnectFromHost();
+            break;
         }
     }
 }

@@ -25,9 +25,9 @@ Game::~Game()
 
 }
 
-void Game::sendCommand(QString cmd)
+void Game::sendCommand(QString)
 {
-    _socket->write((cmd + ";").toUtf8());
+    //_socket->write((cmd + ";").toUtf8());
 }
 
 void Game::appendCard(Card *c)
@@ -67,6 +67,22 @@ void Game::reset()
 void Game::setPlayerID(int value)
 {
     playerID = value;
+}
+
+void Game::changeUI(const Game::NetworkInformation &information, Card *card)
+{
+    switch(information){
+    case RemoveCard:
+        emit removeCard(card);
+        break;
+    case EnableCard:
+        emit enableCard(card);
+        break;
+    case DisableCard:
+        emit disableCard(card);
+        break;
+    }
+
 }
 
 Player *Game::getPlayerById(int id)
@@ -168,19 +184,14 @@ void Game::dataReady(){
 
         if(_socket->bytesAvailable() < application.size()) return;
 
-        bool old = _socket->bytesAvailable() < application.size();
+        // Test header
+        QByteArray firstCommand = _socket->read(application.size());
 
-        if(!old){
-            // Test header
-            QByteArray firstCommand = _socket->read(application.size());
+        if(firstCommand != application){
+            CompatibilitySocket* socket = new CompatibilitySocket(this);
+            socket->setBuffer(QString::fromUtf8(firstCommand));
+            _network = socket;
 
-            if(firstCommand != application){
-                old = true;
-            }
-        }
-
-        if(old){
-            _network = new CompatibilitySocket(this);
             qDebug() << "Compatiblity Mode";
         }else{
             _network = new ClientSocket(this);
