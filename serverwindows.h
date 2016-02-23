@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QHash>
+#include <QMutex>
 
 namespace Ui {
 class ServerWindows;
@@ -65,6 +66,10 @@ protected:
 
     GameEngine* game;
     bool _loaded;
+
+    QMutex _lock;
+    QMutex _broadcastLock;
+
 
 private slots:
     void on_input_chat_returnPressed();

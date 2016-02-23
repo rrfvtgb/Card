@@ -1,32 +1,23 @@
 #ifndef PACKETMANAGER_H
 #define PACKETMANAGER_H
 
-#include <QtCore>
+#include <QObject>
 
 class Packet;
 
-// Forward declaration of all packet
-class Packet01Message;
-class Packet02Information;
-class Packet0FStart;
-class Packet10AddCard;
-class Packet11CardInfo;
-class Packet18EnableCard;
-class Packet19DisableCard;
-class Packet20Rename;
-class Packet21PlayerReady;
-class Packet22PlayerUnprepared;
-class Packet28PlayerMana;
-class Packet29PlayerEnergy;
-class Packet30Creature;
-class Packet31RemoveCreature;
-class Packet38CreatureDamage;
-class Packet39HP;
-
-class PacketManager
+class PacketManager: public QObject
 {
+    Q_OBJECT
+
 public:
-    static Packet* getPacket(quint8 id);
+    PacketManager();
+
+    static Packet* clientPacket(quint8 id);
+    static Packet* serverPacket(quint8 id);
+
+public slots: // Qt Script engine compability method
+    Packet* getClientPacket(quint8 id);
+    Packet* getServerPacket(quint8 id);
 
 private:
     static Packet** _packet;

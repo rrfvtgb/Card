@@ -30,7 +30,7 @@ void OptionWindows::showEvent(QShowEvent *)
 
     ui->input_port->setValue(config->value("port", 6112).toInt());
 
-    ui->input_scriptfolder->setText(config->value("scriptfolder", QDir::currentPath()+"/data").toString());
+    ui->input_scriptfolder->setText(config->value("scriptfolder", "data").toString());
 }
 
 void OptionWindows::closeEvent(QCloseEvent *)
@@ -68,6 +68,6 @@ void OptionWindows::on_browse_scriptfolder_clicked()
                                 tr("Find Files"), ui->input_scriptfolder->text());
 
     if (!directory.isEmpty()) {
-        ui->input_scriptfolder->setText(directory);
+        ui->input_scriptfolder->setText(QDir::current().relativeFilePath(directory));
     }
 }

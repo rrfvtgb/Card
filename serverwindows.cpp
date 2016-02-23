@@ -7,6 +7,7 @@
 
 #include <QSettings>
 #include <QTcpServer>
+#include <QMutexLocker>
 
 #include <network/packet01message.h>
 #include <network/packet02information.h>
@@ -21,12 +22,15 @@ ServerWindows::ServerWindows(QWidget *parent):
 ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) : QMainWindow(parent),
     ui(new Ui::ServerWindows),
     _config(conf),
-    _broadcast(new BroadcastSocket(this))
+    _broadcast(new BroadcastSocket(this)),
+    _lock(),
+    _broadcastLock()
 {
     ui->setupUi(this);
     server   = new QTcpServer(this);
     _loaded = false;
 
+    ClientSocket::initPacketHandle();
 
     game = new GameEngine(this);
     connect(this, SIGNAL(newClient(ClientSocket*)), game, SLOT(connectedClient(ClientSocket*)));
@@ -41,6 +45,8 @@ ServerWindows::~ServerWindows()
 
 void ServerWindows::broadcast(const QByteArray &data)
 {
+
+    QMutexLocker(&this->_broadcastLock);
     foreach(ClientSocket* client, clients){
         client->write(data);
     }
@@ -48,41 +54,48 @@ void ServerWindows::broadcast(const QByteArray &data)
 
 void ServerWindows::newConnection()
 {
-    this->sendMessage(tr("A new player joined the game"));
+    QMutexLocker(&this->_lock);
+    while(server->hasPendingConnections()){
+        this->sendMessage(tr("A new player joined the game"));
 
-    ClientSocket* client = new ClientSocket(server->nextPendingConnection());
+        ClientSocket* client = new ClientSocket(server->nextPendingConnection());
 
-    clients[clientID] = client;
-    client->setId(clientID);
-    client->setName(tr("Player-%1").arg(clientID));
-    client->setServer(this);
+        clients[clientID] = client;
+        client->setId(clientID);
+        client->setName(tr("Player-%1").arg(clientID));
+        client->setServer(this);
 
-    ui->statusbar->showMessage(tr("Connected client: %1").arg(clients.size()));
+        ui->statusbar->showMessage(tr("Connected client: %1").arg(clients.size()));
 
-    clientID ++;
+        clientID ++;
 
-    emit newClient(client);
+        emit newClient(client);
 
-    connect(client, SIGNAL(disconnected(ClientSocket*)), this, SLOT(disconnected(ClientSocket*)));
+        connect(client, SIGNAL(disconnected(ClientSocket*)), this, SLOT(disconnected(ClientSocket*)));
+    }
 }
 
 void ServerWindows::log(const QString &message)
 {
+    QMutexLocker(&this->_lock);
     ui->text_console->appendPlainText(message);
 }
 
 void ServerWindows::warn(const QString &message)
 {
-    ui->text_console->appendHtml("<pre style='color:#FFB838;'>"+message.toHtmlEscaped()+"</pre>");
+    QMutexLocker(&this->_lock);
+    ui->text_console->appendHtml("<pre style='color:#FB3;'>"+message.toHtmlEscaped()+"</pre>");
 }
 
 void ServerWindows::error(const QString &message)
 {
-    ui->text_console->appendHtml("<pre style='color:#FB2727;'>"+message.toHtmlEscaped()+"</pre>");
+    QMutexLocker(&this->_lock);
+    ui->text_console->appendHtml("<pre style='color:#F22;'>"+message.toHtmlEscaped()+"</pre>");
 }
 
 void ServerWindows::disconnected(ClientSocket *client)
 {
+    QMutexLocker(&this->_lock);
     // Add a message for it
     this->sendMessage(tr("%1 left the game").arg(client->name()));
 
@@ -99,6 +112,7 @@ void ServerWindows::showEvent(QShowEvent *)
 {
     if(_loaded) return;
 
+    QMutexLocker(&this->_lock);
     clientID = 0;
 
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
@@ -130,20 +144,27 @@ QHash<int, ClientSocket*> ServerWindows::getClients() const
 
 void ServerWindows::sendMessage(const QString &playername, const QString &message)
 {
-    Packet01Message* m = dynamic_cast<Packet01Message*>
-            (PacketManager::getPacket(0x01));
+    QMutexLocker(&this->_lock);
+    Packet* p = PacketManager::serverPacket(0x01);
 
-    m->bytesToWrite(_broadcast, playername, message);
+    QVector<QVariant> list(2);
+    list[0] = playername;
+    list[1] = message;
+
+    p->writePacket(_broadcast, list);
 
     ui->text_chat->appendHtml("<b style='color:#6a6;'>&lt;"+playername.toHtmlEscaped()+"&gt;</b> "+message.toHtmlEscaped());
 }
 
 void ServerWindows::sendMessage(const QString &message)
 {
-    Packet02Information* m = dynamic_cast<Packet02Information*>
-            (PacketManager::getPacket(0x02));
+    QMutexLocker(&this->_lock);
+    Packet* p = PacketManager::serverPacket(0x01);
 
-    m->bytesToWrite(_broadcast, message);
+    QVector<QVariant> list(1);
+    list[0] = message;
+
+    p->writePacket(_broadcast, list);
 
     ui->text_chat->appendHtml("<i>"+message.toHtmlEscaped()+"</i>");
 }

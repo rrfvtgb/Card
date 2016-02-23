@@ -22,22 +22,7 @@ SOURCES += main.cpp\
     gameengine.cpp \
     network/packet.cpp \
     network/packetmanager.cpp \
-    network/packet01message.cpp \
-    network/packet02information.cpp \
-    network/packet0fstart.cpp \
-    network/packet20rename.cpp \
-    network/packet10addcard.cpp \
-    network/packet11cardinfo.cpp \
-    network/packet18enablecard.cpp \
-    network/packet19disablecard.cpp \
-    network/packet21playerready.cpp \
-    network/packet22playerunprepared.cpp \
-    network/packet28playermana.cpp \
-    network/packet29playerenergy.cpp \
-    network/packet30creature.cpp \
-    network/packet31removecreature.cpp \
-    network/packet38creaturedamage.cpp \
-    network/packet39hp.cpp
+    clientsocket_packethandle.cpp
 
 HEADERS  += optionwindows.h \
     windowcontroller.h \
@@ -46,23 +31,7 @@ HEADERS  += optionwindows.h \
     broadcastsocket.h \
     gameengine.h \
     network/packet.h \
-    network/packetmanager.h \
-    network/packet01message.h \
-    network/packet02information.h \
-    network/packet0fstart.h \
-    network/packet20rename.h \
-    network/packet10addcard.h \
-    network/packet11cardinfo.h \
-    network/packet18enablecard.h \
-    network/packet19disablecard.h \
-    network/packet21playerready.h \
-    network/packet22playerunprepared.h \
-    network/packet28playermana.h \
-    network/packet29playerenergy.h \
-    network/packet30creature.h \
-    network/packet31removecreature.h \
-    network/packet38creaturedamage.h \
-    network/packet39hp.h
+    network/packetmanager.h
 
 FORMS    += optionwindows.ui \
     serverwindows.ui

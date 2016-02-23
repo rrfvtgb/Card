@@ -1,12 +1,15 @@
 #include "clientsocket.h"
 
 #include <QApplication>
+#include <QTcpSocket>
 
 #include <network/packet.h>
 #include <network/packetmanager.h>
 
 ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent),
-    _socket(socket)
+    _socket(socket),
+    _reading(),
+    _thread()
 {
     if(socket != NULL){
         connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
@@ -16,6 +19,9 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent
         socket->write((QApplication::applicationName()
                       +" v"+QApplication::applicationVersion()
                       +"\n").toLocal8Bit());
+
+        socket->moveToThread(&_thread);
+        this->moveToThread(&_thread);
     }
 }
 
@@ -36,14 +42,17 @@ void ClientSocket::setId(int id)
 
 void ClientSocket::write(const QByteArray& data)
 {
+    _writing.lock();
     _socket->write(data);
+    _writing.unlock();
 }
 
 void ClientSocket::read()
 {
+    _reading.lock();
     while(_socket->bytesAvailable() > 0){
         char id = _socket->read(1).at(0);
-        Packet* packet = PacketManager::getPacket(id);
+        Packet* packet = PacketManager::clientPacket(id);
 
         if(packet == NULL){
             _socket->disconnectFromHost();
@@ -52,6 +61,7 @@ void ClientSocket::read()
             packet->bytesToRead(_socket, this);
         }
     }
+    _reading.unlock();
 }
 
 void ClientSocket::socketDisconnected()

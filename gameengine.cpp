@@ -93,17 +93,7 @@ void GameEngine::initMain()
 
 void GameEngine::initPacket()
 {
-    QScriptValue packets = _engine->newArray(256);
-
-    for(int i = 0; i <256; i++){
-        Packet* p = PacketManager::getPacket(i);
-
-        if(p != NULL){
-            packets.setProperty(i, _engine->newQObject(p));
-        }
-    }
-
-    _engine->globalObject().setProperty("packet", packets);
+    _engine->globalObject().setProperty("packet", _engine->newQObject(new PacketManager()));
 }
 
 void GameEngine::initCards()

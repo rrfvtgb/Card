@@ -4,7 +4,10 @@
 #include "serverwindows.h"
 
 #include <QObject>
-#include <QTcpSocket>
+#include <QMutex>
+#include <QThread>
+
+class QTcpSocket;
 
 class ClientSocket : public QObject
 {
@@ -38,6 +41,8 @@ public:
     void setCard(const quint16 &card);
     void unselectCard();
 
+    static void initPacketHandle();
+
 signals:
     void becameReady();
     void disconnected(ClientSocket*);
@@ -56,6 +61,9 @@ protected:
     int _id;
     QString _name;
     bool _ready;
+    QMutex _reading;
+    QMutex _writing;
+    QThread _thread;
 };
 
 #endif // CLIENTSOCKET_H
