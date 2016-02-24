@@ -22,7 +22,11 @@ SOURCES += main.cpp\
     gameengine.cpp \
     network/packet.cpp \
     network/packetmanager.cpp \
-    clientsocket_packethandle.cpp
+    clientsocket_packethandle.cpp \
+    command/command.cpp \
+    command/commandhelper.cpp \
+    command/objectcommand.cpp \
+    command/scriptcommand.cpp
 
 HEADERS  += optionwindows.h \
     windowcontroller.h \
@@ -31,7 +35,11 @@ HEADERS  += optionwindows.h \
     broadcastsocket.h \
     gameengine.h \
     network/packet.h \
-    network/packetmanager.h
+    network/packetmanager.h \
+    command/command.h \
+    command/commandhelper.h \
+    command/objectcommand.h \
+    command/scriptcommand.h
 
 FORMS    += optionwindows.ui \
     serverwindows.ui

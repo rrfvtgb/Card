@@ -9,8 +9,7 @@
 #include <QTcpServer>
 #include <QMutexLocker>
 
-#include <network/packet01message.h>
-#include <network/packet02information.h>
+#include <network/packet.h>
 #include <network/packetmanager.h>
 
 ServerWindows::ServerWindows(QWidget *parent):
