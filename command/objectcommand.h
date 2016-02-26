@@ -3,7 +3,7 @@
 
 #include "command.h"
 
-typedef (*ObjCommandExecutor)(QObject*, const QStringList&);
+typedef QVariant (*ObjCommandExecutor)(QObject*, const QStringList&);
 
 class ObjectCommand : public Command
 {
@@ -13,7 +13,7 @@ public:
     void setExecutor(const ObjCommandExecutor &executor, QObject* object);
 
 protected:
-    bool execute(const QStringList& arg);
+    QVariant execute(const QStringList& arg);
 
     ObjCommandExecutor _executor;
     QObject* _object;

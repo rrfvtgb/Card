@@ -14,7 +14,7 @@ public:
     void setFunction(QScriptValue *function);
 
 protected:
-    bool execute(const QStringList& arg);
+    QVariant execute(const QStringList& arg);
 
     QScriptValue* _function;
 };

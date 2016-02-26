@@ -12,6 +12,8 @@
 #include <network/packet.h>
 #include <network/packetmanager.h>
 
+#include <command/commandhelper.h>
+
 ServerWindows::ServerWindows(QWidget *parent):
     ServerWindows(new QSettings("config.ini", QSettings::IniFormat),
                   parent)
@@ -23,15 +25,20 @@ ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) : QMainWindow(par
     _config(conf),
     _broadcast(new BroadcastSocket(this)),
     _lock(),
-    _broadcastLock()
+    _broadcastLock(),
+    _command(new CommandHelper())
 {
     ui->setupUi(this);
-    server   = new QTcpServer(this);
-    _loaded = false;
 
     ClientSocket::initPacketHandle();
 
+    _loaded = false;
+    _command->addHelp();
+
+    server = new QTcpServer(this);
     game = new GameEngine(this);
+
+
     connect(this, SIGNAL(newClient(ClientSocket*)), game, SLOT(connectedClient(ClientSocket*)));
 }
 
@@ -180,6 +187,21 @@ void ServerWindows::setConfig(QSettings *config)
 
 void ServerWindows::on_input_chat_returnPressed()
 {
-    this->sendMessage("Server", ui->input_chat->text());
+    QString message = ui->input_chat->text();
     ui->input_chat->setText("");
+
+    if(message.startsWith("/")){
+        message.remove(0, 1);
+
+        QVariant result = _command->execute(message);
+        QMutexLocker(&this->_lock);
+
+        if(result.isNull()){
+            ui->text_chat->appendHtml(tr("<i>Unknow command</i>"));
+        }else{
+            ui->text_chat->appendHtml(result.toString());
+        }
+    }else{
+        this->sendMessage("Server", message);
+    }
 }

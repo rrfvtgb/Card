@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     command/command.cpp \
     command/commandhelper.cpp \
     command/objectcommand.cpp \
-    command/scriptcommand.cpp
+    command/scriptcommand.cpp \
+    command/helpcommand.cpp
 
 HEADERS  += optionwindows.h \
     windowcontroller.h \
@@ -39,7 +40,8 @@ HEADERS  += optionwindows.h \
     command/command.h \
     command/commandhelper.h \
     command/objectcommand.h \
-    command/scriptcommand.h
+    command/scriptcommand.h \
+    command/helpcommand.h
 
 FORMS    += optionwindows.ui \
     serverwindows.ui

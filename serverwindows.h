@@ -14,6 +14,7 @@ class QTcpServer;
 
 class ClientSocket;
 class GameEngine;
+class CommandHelper;
 
 class ServerWindows : public QMainWindow
 {
@@ -66,6 +67,8 @@ protected:
 
     GameEngine* game;
     bool _loaded;
+
+    CommandHelper* _command;
 
     QMutex _lock;
     QMutex _broadcastLock;
