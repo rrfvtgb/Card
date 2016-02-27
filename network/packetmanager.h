@@ -1,14 +1,23 @@
 #ifndef PACKETMANAGER_H
 #define PACKETMANAGER_H
 
-#include <QtCore>
+#include <QObject>
 
 class Packet;
 
-class PacketManager
+class PacketManager: public QObject
 {
+    Q_OBJECT
+
 public:
-    static Packet* getPacket(quint8 id);
+    PacketManager();
+
+    static Packet* clientPacket(quint8 id);
+    static Packet* serverPacket(quint8 id);
+
+public slots: // Qt Script engine compability method
+    Packet* getClientPacket(quint8 id);
+    Packet* getServerPacket(quint8 id);
 
 private:
     static Packet** _packet;

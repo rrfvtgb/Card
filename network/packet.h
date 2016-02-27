@@ -1,33 +1,57 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include <QByteArray>
 #include <QObject>
-
-class ClientSocket;
+#include <QVector>
+#include <QVariant>
 
 class QIODevice;
+class QByteArray;
+class QScriptValue;
 
+typedef QVector<QVariant> VectorVariant;
+
+Q_DECLARE_METATYPE(QVector<QVariant>)
+
+typedef void (*PacketRead)(const QVector<QVariant>&, QIODevice*);
 
 class Packet: public QObject
 {
     Q_OBJECT
 
 public:
+    enum PacketData{
+        int8 = 0x01,
+        int16 = 0x02,
+        int32 = 0x03,
+        int64 = 0x04,
+
+        string = 0x10,
+        array = 0x20
+    };
+
     Packet();
-    Packet(quint8 id);
+    Packet(quint16 id, QVector<int> argument = QVector<int>(), PacketRead function = NULL);
 
     ~Packet();
 
     int getId();
 
+    void setReadFunction(const PacketRead &read);
+    void setPacketData(const QVector<int> &argument);
+
 public slots:
-    virtual void bytesToRead(QIODevice*, ClientSocket*) = 0;
+    void bytesToRead(QIODevice* socket, QIODevice*client);
+    void writePacket(QIODevice* socket, const QVector<QVariant> &data);
+    void writePacket(QIODevice* socket, const QScriptValue &data);
 
 protected:
-    quint8 _id;
+    quint16 _id;
+    QVector<int> _argument;
+    PacketRead _read;
 
-    QByteArray *emptyPacket();
+    QByteArray *emptyPacket(int reserveSize=1);
+
     void write(QByteArray*, const QString &str);
     void write(QByteArray*data, quint8 value);
     void write(QByteArray*data, quint16 value);
@@ -35,15 +59,18 @@ protected:
     void write(QByteArray*data, quint64 value);
 
     /// Send packet and delete it from memory
-    void packetReady(QByteArray* data, ClientSocket*client);
+    void packetReady(QByteArray* data, QIODevice*client);
 
-    QString readString(QIODevice* device);
-    quint8  readuint8 (QIODevice* device);
-    quint16 readuint16(QIODevice* device);
-    quint32 readuint32(QIODevice* device);
-    quint64 readuint64(QIODevice* device);
+    QString readString(QIODevice* device, int& delay);
+    quint8  readuint8 (QIODevice* device, int& delay);
+    quint16 readuint16(QIODevice* device, int& delay);
+    quint32 readuint32(QIODevice* device, int& delay);
+    quint64 readuint64(QIODevice* device, int& delay);
 
-    void waitForByteAvailable(QIODevice* device, qint64 byte);
+    qint64 waitForByteAvailable(QIODevice* device, qint64 byte, qint64 max=2000);
+
+    QVariant private_read(int type, int& delay_max, QIODevice *socket);
+    void private_write(int type, QVariant data, QByteArray *packet);
 };
 
 #endif // PACKET_H
