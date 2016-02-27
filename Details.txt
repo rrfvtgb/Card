@@ -1,0 +1,107 @@
+Main
+----
+
+Launch Windows Controller
+
+
+Windows Controller
+------------------
+
+Contains Configuration
+Open options, server and other windows.
+Used as main class
+
+
+Options Windows
+---------------
+
+Contains all configuration value
+May save some value
+
+
+Server Windows
+--------------
+
+Contains server socket and list of clients
+Used as chat and console for the server
+
+
+Client Socket
+-------------
+
+Used to send and read data from an user
+
+
+
+Packet
+------
+
+[ID] [Read/Write/Broadcast] -> [Description] <Server coding Done>
+	Read:  [Data Type] <Data Type> ... <Data Type>
+	Write: [Data Type] <Data Type> ... <Data Type>
+
+0x01 [rwb] -> Message (chat) <Done>
+	[String]
+	[String] [String]
+
+0x02 [-w?] -> Message (information) <WIP>
+	[String]
+
+0x0F [-w-] -> Start signal <WIP>
+	[Int]
+
+0x10 [rw-] -> Add card <WIP>
+	[Array <Int>]
+	[Array <Int>]
+	
+0x11 [-w-] -> Add card info <WIP>
+	[Int] [Int] [Int]  [Int] [Int] [String] [String]
+		
+0x18 [rw-] -> Enable card <WIP>
+	[Int]
+	[Int]
+	
+0x19 [rw-] -> Disable card <WIP>
+	[Int]
+	[Int]
+
+0x20 [rwb] -> Rename player <Done>
+	[String]
+	[Int] [String]
+
+0x21 [-wb] -> Player ready <WIP>
+	[Int]
+
+0x22 [-wb] -> Player unprepared <WIP>
+	[Int]
+
+0x28 [-wb] -> Set ressource to player (Mana) <WIP>
+	[Int] [Int]
+	
+0x29 [-wb] -> Set ressource to player (Energy) <WIP>
+	[Int] [Int]
+
+0x30 [-wb] -> Add creature <WIP>
+	[Int] [Int] [Int] [Int] [Int] [Int]
+	
+0x31 [-wb] -> Remove creature <WIP>
+	[Int] [Int]
+
+0x38 [-wb] -> Change creature (Damage) <WIP>
+	[Int] [Int] [Int]
+
+0x39 [-wb] -> Change creature (HP) <WIP>
+	[Int] [Int] [Int]
+
+
+
+
+
+
+
+
+
+
+
+
+
