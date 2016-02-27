@@ -6,6 +6,7 @@ BroadcastSocket::BroadcastSocket(ServerWindows * server):
     QIODevice(server)
 {
     this->setServer(server);
+    setOpenMode(QIODevice::WriteOnly);
 }
 
 qint64 BroadcastSocket::readData(char *, qint64 )

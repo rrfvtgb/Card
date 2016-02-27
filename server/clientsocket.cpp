@@ -23,6 +23,8 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QIODevice(pare
 
         socket->moveToThread(&_thread);
         this->moveToThread(&_thread);
+
+        this->setOpenMode(QIODevice::WriteOnly);
     }
 }
 

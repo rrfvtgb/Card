@@ -2,7 +2,6 @@
 
 #include <QDateTime>
 #include <QScriptValue>
-#include <clientsocket.h>
 
 Packet::Packet():
     Packet(0, QVector<int>())

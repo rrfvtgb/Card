@@ -11,56 +11,25 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = CardServer
 TEMPLATE = app
 
-CONFIG += c++11
+SOURCES += server/main.cpp\
+    server/optionwindows.cpp \
+    server/windowcontroller.cpp \
+    server/serverwindows.cpp \
+    server/clientsocket.cpp \
+    server/broadcastsocket.cpp \
+    server/gameengine.cpp
 
-SOURCES += main.cpp\
-        optionwindows.cpp \
-    windowcontroller.cpp \
-    serverwindows.cpp \
-    clientsocket.cpp \
-    broadcastsocket.cpp \
-    gameengine.cpp \
-    network/packet.cpp \
-    network/packetmanager.cpp \
-    command/command.cpp \
-    command/commandhelper.cpp \
-    command/objectcommand.cpp \
-    command/scriptcommand.cpp \
-    command/helpcommand.cpp
+HEADERS  += server/optionwindows.h \
+    server/windowcontroller.h \
+    server/serverwindows.h \
+    server/clientsocket.h \
+    server/broadcastsocket.h \
+    server/gameengine.h
 
-HEADERS  += optionwindows.h \
-    windowcontroller.h \
-    serverwindows.h \
-    clientsocket.h \
-    broadcastsocket.h \
-    gameengine.h \
-    network/packet.h \
-    network/packetmanager.h \
-    command/command.h \
-    command/commandhelper.h \
-    command/objectcommand.h \
-    command/scriptcommand.h \
-    command/helpcommand.h
+FORMS    += server/optionwindows.ui \
+    server/serverwindows.ui
 
-FORMS    += optionwindows.ui \
-    serverwindows.ui
-
-# Proper build folder
-Release:DESTDIR = release
-Release:OBJECTS_DIR = release/.obj
-Release:MOC_DIR = release/.moc
-Release:RCC_DIR = release/.rcc
-Release:UI_DIR = release/.ui
-
-Debug:DESTDIR = debug
-Debug:OBJECTS_DIR = debug/.obj
-Debug:MOC_DIR = debug/.moc
-Debug:RCC_DIR = debug/.rcc
-Debug:UI_DIR = debug/.ui
-
-# Export data
-copydata.commands = $(COPY_DIR) $$shell_path($$PWD/data) $$shell_path($$OUT_PWD/data)
-first.depends = $(first) copydata
-export(first.depends)
-export(copydata.commands)
-QMAKE_EXTRA_TARGETS += first copydata
+include($$PWD/command/command.pri)
+include($$PWD/network/network.pri)
+include($$PWD/data/script.pri)
+include($$PWD/option.pri)
