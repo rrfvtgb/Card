@@ -6,9 +6,10 @@
 #include <network/packet.h>
 #include <network/packetmanager.h>
 
-ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QObject(parent),
+ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QIODevice(parent),
     _socket(socket),
     _reading(),
+    _writing(),
     _thread()
 {
     if(socket != NULL){
@@ -38,13 +39,6 @@ int ClientSocket::id() const
 void ClientSocket::setId(int id)
 {
     _id = id;
-}
-
-void ClientSocket::write(const QByteArray& data)
-{
-    _writing.lock();
-    _socket->write(data);
-    _writing.unlock();
 }
 
 void ClientSocket::read()
@@ -134,3 +128,34 @@ void ClientSocket::setServer(ServerWindows *server)
 {
     _server = server;
 }
+
+qint64 ClientSocket::readData(char *data, qint64 maxlen)
+{
+    return _socket->read(data, maxlen);
+}
+
+qint64 ClientSocket::writeData(const char *data, qint64 maxlen)
+{
+    QMutexLocker(&(this->_writing));
+    return _socket->write(data, maxlen);
+}
+
+void read01(const QVector<QVariant>& arg, QIODevice* device){
+    ClientSocket* c;
+    if((c = dynamic_cast<ClientSocket*>(device)) != NULL){
+        c->server()->sendMessage(c->name(), arg[0].toString());
+    }
+}
+
+void read20(const QVector<QVariant>& arg, QIODevice* device){
+    ClientSocket* c;
+    if((c = dynamic_cast<ClientSocket*>(device)) != NULL){
+        c->setName(arg[0].toString());
+    }
+}
+
+void ClientSocket::initPacketHandle(){
+    PacketManager::clientPacket(0x01)->setReadFunction(read01);
+    PacketManager::clientPacket(0x20)->setReadFunction(read20);
+}
+

@@ -3,14 +3,27 @@
 #include "serverwindows.h"
 
 BroadcastSocket::BroadcastSocket(ServerWindows * server):
-    ClientSocket(NULL, NULL)
+    QIODevice(server)
 {
-    this->setId(-1);
     this->setServer(server);
 }
 
-void BroadcastSocket::write(const QByteArray &data)
+qint64 BroadcastSocket::readData(char *, qint64 )
 {
-    _server->broadcast(data);
+    return -1;
 }
 
+qint64 BroadcastSocket::writeData(const char *data, qint64 maxlen)
+{
+    return _server->broadcast(data, maxlen);
+}
+
+ServerWindows *BroadcastSocket::server() const
+{
+    return _server;
+}
+
+void BroadcastSocket::setServer(ServerWindows *server)
+{
+    _server = server;
+}

@@ -82,7 +82,7 @@ void Packet::private_write(int type, QVariant data, QByteArray *packet)
     }
 }
 
-void Packet::writePacket(ClientSocket *socket, const QVector<QVariant> &data)
+void Packet::writePacket(QIODevice *socket, const QVector<QVariant> &data)
 {
     int l = data.size();
     if(_argument.size() == l){
@@ -102,7 +102,7 @@ void Packet::writePacket(ClientSocket *socket, const QVector<QVariant> &data)
     } // Else throw exception
 }
 
-void Packet::writePacket(ClientSocket *socket, const QScriptValue &data)
+void Packet::writePacket(QIODevice *socket, const QScriptValue &data)
 {
     if(!data.isArray()) return; // Array expected
 
@@ -133,7 +133,7 @@ void Packet::writePacket(ClientSocket *socket, const QScriptValue &data)
     } // Else throw exception
 }
 
-void Packet::bytesToRead(QIODevice *socket, ClientSocket *client)
+void Packet::bytesToRead(QIODevice *socket, QIODevice *client)
 {
     if(_read == NULL){
         return; // Todo : throw exception
@@ -215,7 +215,7 @@ void Packet::write(QByteArray *data, quint64 value)
     data->append((quint8) value&0xFF);
 }
 
-void Packet::packetReady(QByteArray *data, ClientSocket *client)
+void Packet::packetReady(QByteArray *data, QIODevice *client)
 {
     client->write(*data);
 

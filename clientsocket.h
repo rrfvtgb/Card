@@ -4,12 +4,13 @@
 #include "serverwindows.h"
 
 #include <QObject>
+#include <QIODevice>
 #include <QMutex>
 #include <QThread>
 
 class QTcpSocket;
 
-class ClientSocket : public QObject
+class ClientSocket : public QIODevice
 {
     Q_OBJECT
     Q_PROPERTY(int id READ id WRITE setId)
@@ -22,8 +23,6 @@ public:
 
     int id() const;
     void setId(int id);
-
-    virtual void write(const QByteArray &data);
 
     ServerWindows *server() const;
     void setServer(ServerWindows *server);
@@ -64,6 +63,9 @@ protected:
     QMutex _reading;
     QMutex _writing;
     QThread _thread;
+
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 maxlen);
 };
 
 #endif // CLIENTSOCKET_H

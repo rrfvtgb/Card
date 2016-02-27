@@ -22,7 +22,6 @@ SOURCES += main.cpp\
     gameengine.cpp \
     network/packet.cpp \
     network/packetmanager.cpp \
-    clientsocket_packethandle.cpp \
     command/command.cpp \
     command/commandhelper.cpp \
     command/objectcommand.cpp \

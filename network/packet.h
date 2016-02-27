@@ -5,8 +5,6 @@
 #include <QVector>
 #include <QVariant>
 
-class ClientSocket;
-
 class QIODevice;
 class QByteArray;
 class QScriptValue;
@@ -15,7 +13,7 @@ typedef QVector<QVariant> VectorVariant;
 
 Q_DECLARE_METATYPE(QVector<QVariant>)
 
-typedef void (*PacketRead)(const QVector<QVariant>&, ClientSocket*);
+typedef void (*PacketRead)(const QVector<QVariant>&, QIODevice*);
 
 class Packet: public QObject
 {
@@ -43,9 +41,9 @@ public:
     void setPacketData(const QVector<int> &argument);
 
 public slots:
-    void bytesToRead(QIODevice* socket, ClientSocket*client);
-    void writePacket(ClientSocket* socket, const QVector<QVariant> &data);
-    void writePacket(ClientSocket* socket, const QScriptValue &data);
+    void bytesToRead(QIODevice* socket, QIODevice*client);
+    void writePacket(QIODevice* socket, const QVector<QVariant> &data);
+    void writePacket(QIODevice* socket, const QScriptValue &data);
 
 protected:
     quint16 _id;
@@ -61,7 +59,7 @@ protected:
     void write(QByteArray*data, quint64 value);
 
     /// Send packet and delete it from memory
-    void packetReady(QByteArray* data, ClientSocket*client);
+    void packetReady(QByteArray* data, QIODevice*client);
 
     QString readString(QIODevice* device, int& delay);
     quint8  readuint8 (QIODevice* device, int& delay);

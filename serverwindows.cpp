@@ -51,11 +51,19 @@ ServerWindows::~ServerWindows()
 
 void ServerWindows::broadcast(const QByteArray &data)
 {
-
     QMutexLocker(&this->_broadcastLock);
     foreach(ClientSocket* client, clients){
         client->write(data);
     }
+}
+
+qint64 ServerWindows::broadcast(const char *data, qint64 maxlen)
+{
+    QMutexLocker(&this->_broadcastLock);
+    foreach(ClientSocket* client, clients){
+        client->write(data, maxlen);
+    }
+    return maxlen;
 }
 
 void ServerWindows::newConnection()
@@ -138,7 +146,7 @@ void ServerWindows::closeEvent(QCloseEvent *)
     emit closed(this);
 }
 
-ClientSocket *ServerWindows::getBroadcastClient() const
+QIODevice *ServerWindows::getBroadcastClient() const
 {
     return _broadcast;
 }

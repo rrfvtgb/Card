@@ -13,6 +13,7 @@ class QSettings;
 class QTcpServer;
 
 class ClientSocket;
+class BroadcastSocket;
 class GameEngine;
 class CommandHelper;
 
@@ -26,13 +27,14 @@ public:
     ~ServerWindows();
 
     void broadcast(const QByteArray& data);
+    qint64 broadcast(const char*data, qint64 maxlen);
 
     QSettings *config() const;
     void setConfig(QSettings *config);
 
     QHash<int, ClientSocket*> getClients() const;
 
-    ClientSocket *getBroadcastClient() const;
+    QIODevice *getBroadcastClient() const;
 
 signals:
     void closed(QMainWindow*);
@@ -62,16 +64,16 @@ protected:
     QTcpServer* server;
 
     QHash<int, ClientSocket*> clients;
-    ClientSocket* _broadcast;
+    BroadcastSocket* _broadcast;
     int clientID;
 
     GameEngine* game;
     bool _loaded;
 
-    CommandHelper* _command;
-
     QMutex _lock;
     QMutex _broadcastLock;
+
+    CommandHelper* _command;
 
 
 private slots:
