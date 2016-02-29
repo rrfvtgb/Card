@@ -3,71 +3,55 @@
 
 #include <QMainWindow>
 
-#include <QAbstractSocket>
-#include <QHash>
-
-namespace Ui {
-class MainWindow;
-class GameLayout;
-}
-
-class QTcpSocket;
-class QStringListModel;
-class QSettings;
-
-class Card;
-class CardElement;
-class CardWidget;
-
-class Player;
-
-class Game;
+class Menu;
+class GameWidget;
+class ServerList;
+class QStackedWidget;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
+    enum Ui{
+        MenuUi,
+        ServerListUi,
+        GameUi
+    };
+
     explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
 
-    void disconnectUI();
-private:
-    Ui::MainWindow *mainUI;
-    Ui::GameLayout *gameUI;
+    /**
+     * @brief setView Set the widget to be display
+     * @param type Type of widget to be used (will use old widget if possible)
+     */
+    void setView(Ui type);
 
-    QTcpSocket* socket;
-    Game *game;
+    /**
+     * @brief setView setView Set the widget to be display
+     * @param widget Widget to be displayed
+     */
+    void setView(QWidget* widget);
 
-    QStringListModel* chat;
-    QHash<int, CardWidget*> cardUI;
-    QHash<int, CardElement*> cards;
+private slots:
+    /**
+     * @brief showMenu Set the view on the menu
+     */
+    void showMenu();
 
-    CardWidget* getCardWidgetByType(int type);
+    /**
+     * @brief showServerList Set the view on the server list
+     */
+    void showServerList();
 
-    QSettings* config;
+protected:
+    /// Current Widget used in display
+    QStackedWidget* _view;
 
-public slots:
-    void tryConnect();
-    void onConnect();
-
-    void resetUI();
-
-    void displayError(QAbstractSocket::SocketError);
-    void socketStateChanged(QAbstractSocket::SocketState);
-
-    void readMessage();
-    void receiveMessage(QString message);
-
-    void addNewCard(Card* c);
-    void addNewPlayer(Player* p);
-
-    void removeCard(Card* c);
-
-    void disableCard(Card* c);
-    void enableCard(Card* c);
-
-    void cardClicked(Card* c);
+    // Different Widget which can be used in display
+    Menu* _menu;
+    ServerList* _list;
+    GameWidget* _game;
 };
 
 #endif // MAINWINDOW_H

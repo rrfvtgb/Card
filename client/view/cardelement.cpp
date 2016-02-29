@@ -1,4 +1,5 @@
 #include "cardelement.h"
+#include "cardoverlay.h"
 
 #include <QGraphicsColorizeEffect>
 #include <QImage>
@@ -8,8 +9,7 @@
 
 #include <QDebug>
 
-#include "card.h"
-#include "cardoverlay.h"
+#include <data/card.h>
 
 CardElement::CardElement(QWidget *parent) : QWidget(parent),
     _card(NULL),

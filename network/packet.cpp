@@ -1,7 +1,10 @@
 #include "packet.h"
 
 #include <QDateTime>
-#include <QScriptValue>
+
+#ifdef QTSCRIPTGLOBAL_H
+# include <QScriptValue>
+#endif
 
 Packet::Packet():
     Packet(0, QVector<int>())
@@ -36,6 +39,65 @@ void Packet::setReadFunction(const PacketRead &read)
 void Packet::setPacketData(const QVector<int> &argument)
 {
     _argument = argument;
+}
+
+QHash<QString, QVariant> Packet::readHeader(QIODevice *socket)
+{
+    // Contains all header
+    QHash<QString, QVariant> header;
+
+    // Tolerate 5s
+    int delay = 5000;
+    int length = this->readuint16(socket, delay);
+
+    for(int i; i<length; i++){
+        QString  name  = this->readString(socket, delay);
+        int      type  = this->readuint8(socket, delay);
+        QVariant value = this->private_read(type, delay, socket);
+
+        header.insert(name, value);
+    }
+
+    return header;
+}
+
+void Packet::writeHeader(QIODevice *socket, QHash<QString, QVariant> header)
+{
+    QHash<QString, QVariant>::iterator iterator = header.begin();
+    QHash<QString, QVariant>::iterator end   = header.end();
+
+    QByteArray* data = new QByteArray();
+    data->reserve(100*header.size());
+    this->write(data, (quint16) header.size());
+
+    int type = 0;
+
+    while(iterator != end){
+        switch(iterator.value().type()){
+        case QVariant::String:
+            type=Packet::string;
+            break;
+        case QVariant::ULongLong:
+            type=Packet::int64;
+            break;
+        case QVariant::UInt:
+            type=Packet::int32;
+            break;
+        default:
+            /**
+             * @todo throw error
+             */
+            type=0;
+            break;
+        }
+
+        this->write(data, iterator.key());
+        this->private_write(type, iterator.value(), data);
+
+        ++iterator;
+    }
+
+    this->packetReady(data, socket);
 }
 
 QVariant Packet::private_read(int type, int &delay_max, QIODevice *socket){
@@ -101,6 +163,7 @@ void Packet::writePacket(QIODevice *socket, const QVector<QVariant> &data)
     } // Else throw exception
 }
 
+#ifdef QTSCRIPTGLOBAL_H
 void Packet::writePacket(QIODevice *socket, const QScriptValue &data)
 {
     if(!data.isArray()) return; // Array expected
@@ -131,6 +194,7 @@ void Packet::writePacket(QIODevice *socket, const QScriptValue &data)
         this->packetReady(packet, socket);
     } // Else throw exception
 }
+#endif
 
 void Packet::bytesToRead(QIODevice *socket, QIODevice *client)
 {
