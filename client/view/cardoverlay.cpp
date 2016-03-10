@@ -2,9 +2,9 @@
 #include <QDebug>
 #include <QTimer>
 
-#include "cardoverlay.h"
+#include <data/card.h>
 
-#include "card.h"
+#include "cardoverlay.h"
 
 CardOverlay::CardOverlay(QWidget *parent) : QWidget(parent),
     _ty(0),

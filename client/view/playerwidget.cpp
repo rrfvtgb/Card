@@ -1,10 +1,10 @@
 #include "playerwidget.h"
 
-#include "creep.h"
-#include "player.h"
-
 #include <QDebug>
 #include <QPainter>
+
+#include <data/creep.h>
+#include <data/player.h>
 
 QImage* PlayerWidget::hp = new QImage(":/icons/hp.png");
 QImage* PlayerWidget::mana = new QImage(":/icons/mana.png");

@@ -3,7 +3,7 @@
 
 #include "command.h"
 
-#include <QScriptValue>
+class QScriptValue;
 
 class ScriptCommand : public Command
 {

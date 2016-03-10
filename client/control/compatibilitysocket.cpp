@@ -1,136 +1,23 @@
-#include "creep.h"
-#include "game.h"
+#include "compatibilitysocket.h"
 
 #include <QImage>
 #include <QTcpSocket>
+#include <creep.h>
+#include <game.h>
 
-Game::Game(QObject *parent)
-    : QObject(parent),
-      players(),
-      cards(),
-      hand(),
-      playerID(-1),
-      _mode(Classic)
+CompatibilitySocket::CompatibilitySocket(Game *parent) : SocketController(parent)
 {
 
 }
 
-Game::~Game()
+void CompatibilitySocket::setBuffer(const QString &buffer)
 {
-
+    this->buffer = buffer;
 }
 
-void Game::sendCommand(QString cmd)
+void CompatibilitySocket::readReady()
 {
-    socket->write((cmd + ";").toUtf8());
-}
-
-void Game::onCardClick(Card *c)
-{
-    switch(_mode){
-    case DeckBuilder:
-        if(deck.contains(c)){
-            deck.removeOne(c);
-            emit disableCard(c);
-        }else if(deck.length()<20){
-            deck.append(c);
-            emit enableCard(c);
-        }
-        break;
-    case Classic:
-        this->sendCommand("ACTION "+QString::number(c->id()));
-        break;
-    }
-}
-
-Player *Game::getPlayerById(int id)
-{
-    QHash<int, Player*>::iterator it = this->players.find(id);
-    Player* p;
-
-    if(it != this->players.end()){ // Player exist
-        p = it.value();
-
-    }else{ // Insert new Player
-        p = new Player();
-
-        p->setId(id);
-        this->players.insert(id, p);
-
-        emit newPlayer(p);
-    }
-
-    return p;
-}
-
-Card *Game::getCardById(int id)
-{
-    QHash<int, Card*>::iterator it = this->cards.find(id);
-    Card* c;
-
-    if(it != this->cards.end()){ // Card exist
-        c = it.value();
-
-    }else{ // Insert new card
-        c = new Card();
-
-        c->setId(id);
-        this->cards.insert(id, c);
-    }
-
-    return c;
-}
-
-Game::GameMode Game::getMode() const
-{
-    return _mode;
-}
-
-void Game::setMode(const GameMode &mode)
-{
-    _mode = mode;
-}
-
-QString Game::getDeckAsString() const
-{
-    QString s;
-    foreach(Card*c, deck){
-        s+=" "+QString::number(c->id());
-    }
-    return s;
-}
-
-void Game::setNewDeck(QVector<Card *> newDeck)
-{
-    foreach(Card* c, deck){
-        emit disableCard(c);
-    }
-    foreach(Card* c, newDeck){
-        emit enableCard(c);
-    }
-    deck = newDeck;
-}
-
-void Game::say(QString message)
-{
-    this->sendCommand("SAY "+message);
-}
-
-QTcpSocket *Game::getSocket() const
-{
-    return socket;
-}
-
-void Game::setSocket(QTcpSocket *value)
-{
-    socket = value;
-
-    connect(socket, SIGNAL(readyRead()), this, SLOT(dataReady()));
-
-    this->dataReady();
-}
-
-void Game::dataReady(){
+    QTcpSocket* socket = _game->socket();
     int pos, idPos;
     QByteArray cmd = socket->read(socket->bytesAvailable());
     QString subCmd, cmdID;
@@ -155,29 +42,29 @@ void Game::dataReady(){
 
             // ----------------------------------------------
         if(cmdID == "SAY" || cmdID == "DISP"){
-            emit receiveMessage(subCmd.right(subCmd.length() - cmdID.size() - 1));
+            this->readMessage(subCmd.right(subCmd.length() - cmdID.size() - 1));
             // ----------------------------------------------
         }else if(cmdID == "ADDACTION" && params.size() == 2){
             int cID = params[1].toInt(&ok);
 
             if(ok){
-                Card* c = this->getCardById(cID);
-                this->hand.append(c);
+                Card* c = _game->getCardById(cID);
+                _game->appendCard(c);
 
-                emit newCard(c);
+                //emit newCard(c);
 
-                if(_mode==Classic){
-                    emit disableCard(c);
+                if(_game->getMode() == Game::Classic){
+                    disableCard(c);
                 }
             }else{ // INVALID Card ID
                 qDebug() << "[Error] Player id invalid: " << params[1];
             }
             // ----------------------------------------------
         }else if(cmdID == "START" && params.size() == 3){
-            this->playerID = params[2].toInt(&ok);
+            _game->setPlayerID(params[2].toInt(&ok));
 
             if(ok){
-                Player* p = this->getPlayerById(playerID);
+                Player* p = _game->playerData();
 
                 if(p->name()==""){
                     p->setName("Me");
@@ -190,7 +77,7 @@ void Game::dataReady(){
             int id = params[1].toInt(&ok);
 
             if(ok){
-                emit enableCard(this->getCardById(id));
+                enableCard(_game->getCardById(id));
             }else{
                 qDebug() << "[Error] Card id invalid: " << params[1];
             }
@@ -199,7 +86,7 @@ void Game::dataReady(){
             int id = params[1].toInt(&ok);
 
             if(ok){
-                emit disableCard(this->getCardById(id));
+                disableCard(_game->getCardById(id));
             }else{
                 qDebug() << "[Error] Card id invalid: " << params[1];
             }
@@ -208,7 +95,7 @@ void Game::dataReady(){
             int pID = params[1].toInt(&ok);
 
             if(ok){
-                Player* p = this->getPlayerById(pID);
+                Player* p = _game->getPlayerById(pID);
                 p->setName(subCmd.mid(idPos + 2 + params[1].size()));
             }else{ // INVALID Player ID
                 qDebug() << "[Error] Player id invalid: " << params[1];
@@ -225,7 +112,7 @@ void Game::dataReady(){
             int image = params[6].toInt(&ok6);
 
             if(ok && ok2 && ok3 && ok4 && ok5 && ok6){
-                Player* p = this->getPlayerById(player);
+                Player* p = _game->getPlayerById(player);
                 Creep* c = new Creep();
 
                 c->setAttack(dmg);
@@ -245,7 +132,7 @@ void Game::dataReady(){
             int slot = params[2].toInt(&ok2);
 
             if(ok && ok2){
-                Player* p = this->getPlayerById(player);
+                Player* p = _game->getPlayerById(player);
                 p->remplaceCreep(slot, NULL);
             }else{
                 qDebug() << "[Error] Invalid command: " << params;
@@ -259,7 +146,7 @@ void Game::dataReady(){
             int dmg = params[3].toInt(&ok3);
 
             if(ok && ok2 && ok3){
-                Player* p = this->getPlayerById(pID);
+                Player* p = _game->getPlayerById(pID);
 
                 if(slot == 4){
                     qDebug() << "Can't change damage of a player";
@@ -284,7 +171,7 @@ void Game::dataReady(){
             int hp = params[3].toInt(&ok3);
 
             if(ok && ok2 && ok3){
-                Player* p = this->getPlayerById(pID);
+                Player* p = _game->getPlayerById(pID);
 
                 if(slot == 4){
                     p->setHp(hp);
@@ -308,7 +195,7 @@ void Game::dataReady(){
             int mana = params[2].toInt(&ok2);
 
             if(ok && ok2){
-                Player* p = this->getPlayerById(pID);
+                Player* p = _game->getPlayerById(pID);
                 p->setMana(mana);
             }else{ // INVALID Player ID
                 qDebug() << "[Error] Player id invalid: " << params[1];
@@ -321,7 +208,7 @@ void Game::dataReady(){
             int energy = params[2].toInt(&ok2);
 
             if(ok && ok2){
-                Player* p = this->getPlayerById(pID);
+                Player* p = _game->getPlayerById(pID);
                 p->setEnergy(energy);
             }else{ // INVALID Player ID
                 qDebug() << "[Error] Player id invalid: " << params[1];
@@ -331,7 +218,7 @@ void Game::dataReady(){
             int pID = params[1].toInt(&ok);
 
             if(ok){
-                Player* p = this->getPlayerById(pID);
+                Player* p = _game->getPlayerById(pID);
                 p->ready();
             }else{ // INVALID Player ID
                 qDebug() << "[Error] Player id invalid: " << params[1];
@@ -341,7 +228,7 @@ void Game::dataReady(){
             int pID = params[1].toInt(&ok);
 
             if(ok){
-                Player* p = this->getPlayerById(pID);
+                Player* p = _game->getPlayerById(pID);
                 p->unready();
             }else{ // INVALID Player ID
                 qDebug() << "[Error] Player id invalid: " << params[1];
@@ -353,16 +240,16 @@ void Game::dataReady(){
             int pID = params[1].toInt(&ok);
             int cID = params[2].toInt(&ok2);
 
-            if(ok && ok2 && pID == this->playerID){
-                Card* c = this->getCardById(cID);
-                emit removeCard(c);
+            if(ok && ok2 && pID == _game->playerData()->id()){
+                Card* c = _game->getCardById(cID);
+                removeCard(c);
             }
             // ----------------------------------------------
         }else if(cmdID == "TOOLTIP" && params.size() > 2){ // ADD CARD INFO
             int cID = params[1].toInt(&ok);
 
             if(ok){
-                Card* c = this->getCardById(cID);
+                Card* c = _game->getCardById(cID);
 
                 int arg1 = idPos + 1 + params[1].size();
                 int arg2 = subCmd.indexOf("\n"); // Ignore name
@@ -377,7 +264,7 @@ void Game::dataReady(){
             int cID = params[1].toInt(&ok);
 
             if(ok){
-                Card* c = this->getCardById(cID);
+                Card* c = _game->getCardById(cID);
 
                 int arg1 = idPos + 2 + params[1].size();
                 c->setName(subCmd.mid(arg1));
@@ -395,7 +282,7 @@ void Game::dataReady(){
             int energy = params[5].toInt(&ok5);
 
             if(ok && ok2 && ok3 && ok4 && ok5){
-                Card* c = this->getCardById(cID);
+                Card* c = _game->getCardById(cID);
 
                 c->setType(type);
                 c->setSpeed(speed);
@@ -411,4 +298,9 @@ void Game::dataReady(){
     }
 
     //qDebug() << "Buffer << " << buffer;
+}
+
+void CompatibilitySocket::sendMessage(const QString &message)
+{
+    _game->socket()->write(("SAY "+message+";").toUtf8());
 }

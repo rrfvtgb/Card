@@ -1,0 +1,40 @@
+Main Windows
+------------
+
+The windows who represent the client.
+The application will close when this windows is closed.
+
+
+UI
+--
+
+User interface for :
+- Menu
+- Play (Server list)
+- Game
+- Deckbuilder
+- Spectate
+
+Data
+----
+
+Contains structure for :
+- Player
+- Creep
+- Card
+
+Control
+-------
+
+Contains class for :
+- Network parsing
+
+View
+----
+
+Contains widget to represent :
+- Card
+- Frame (for Card)
+- Layout (for Card)
+- Player
+- Overlay (for Card, will be removed)

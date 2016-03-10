@@ -41,9 +41,15 @@ public:
     void setPacketData(const QVector<int> &argument);
 
 public slots:
+    QHash<QString, QVariant> readHeader(QIODevice* socket);
+    void writeHeader(QIODevice* socket, QHash<QString, QVariant> header);
+
     void bytesToRead(QIODevice* socket, QIODevice*client);
     void writePacket(QIODevice* socket, const QVector<QVariant> &data);
+
+#ifdef QTSCRIPTGLOBAL_H
     void writePacket(QIODevice* socket, const QScriptValue &data);
+#endif
 
 protected:
     quint16 _id;
