@@ -5,6 +5,7 @@
 #include <ui/gamewidget.h>
 
 #include <QStackedWidget>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_menu, SIGNAL(exit()), this, SLOT(close()) );
 
     connect(_list, SIGNAL(exit()), this, SLOT(showMenu()));
+    connect(_list, SIGNAL(join(QString)), this, SLOT(connectTo(QString)));
 }
 
 void MainWindow::setView(MainWindow::Ui type)
@@ -59,4 +61,9 @@ void MainWindow::showMenu()
 void MainWindow::showServerList()
 {
     this->setView(ServerListUi);
+}
+
+void MainWindow::connectTo(QString address)
+{
+    qDebug() << "connecting to" << address ;
 }
