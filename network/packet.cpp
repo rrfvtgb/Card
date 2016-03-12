@@ -1,6 +1,7 @@
 #include "packet.h"
 
 #include <QDateTime>
+#include <QIODevice>
 
 #ifdef QTSCRIPTGLOBAL_H
 # include <QScriptValue>

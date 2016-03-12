@@ -44,6 +44,12 @@ private slots:
      */
     void showServerList();
 
+    /**
+     * @brief connectTo Try to connect to a specific server
+     * @param address the server adress
+     */
+    void connectTo(QString address);
+
 protected:
     /// Current Widget used in display
     QStackedWidget* _view;
