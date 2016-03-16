@@ -7,6 +7,7 @@
 #include <QIODevice>
 #include <QMutex>
 #include <QThread>
+#include <QAbstractSocket>
 
 class QTcpSocket;
 
@@ -44,13 +45,13 @@ public:
 
 signals:
     void becameReady();
-    void disconnected(ClientSocket*);
+    void closed(ClientSocket*, QString);
 
 public slots:
     void read();
 
 protected slots:
-    void socketDisconnected();
+    void socketError(QAbstractSocket::SocketError socketError);
 
 protected:
     QTcpSocket* _socket;
@@ -59,10 +60,10 @@ protected:
     quint16 _card;
     int _id;
     QString _name;
+
     bool _ready;
-    QMutex _reading;
-    QMutex _writing;
-    QThread _thread;
+
+    bool _header;
 
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 maxlen);

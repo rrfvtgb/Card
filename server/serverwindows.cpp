@@ -8,6 +8,8 @@
 #include <QSettings>
 #include <QTcpServer>
 #include <QMutexLocker>
+#include <QTcpSocket>
+#include <networkexception.h>
 
 #include <network/packet.h>
 #include <network/packetmanager.h>
@@ -37,7 +39,6 @@ ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) : QMainWindow(par
 
     server = new QTcpServer(this);
     game = new GameEngine(this);
-
 
     connect(this, SIGNAL(newClient(ClientSocket*)), game, SLOT(connectedClient(ClientSocket*)));
 }
@@ -72,7 +73,10 @@ void ServerWindows::newConnection()
     while(server->hasPendingConnections()){
         this->sendMessage(tr("A new player joined the game"));
 
-        ClientSocket* client = new ClientSocket(server->nextPendingConnection());
+        QTcpSocket* socket = server->nextPendingConnection();
+        ClientSocket* client = new ClientSocket(socket);
+
+        socket->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
 
         clients[clientID] = client;
         client->setId(clientID);
@@ -85,7 +89,7 @@ void ServerWindows::newConnection()
 
         emit newClient(client);
 
-        connect(client, SIGNAL(disconnected(ClientSocket*)), this, SLOT(disconnected(ClientSocket*)));
+        connect(client, SIGNAL(closed(ClientSocket*, QString)), this, SLOT(disconnected(ClientSocket*, QString)), Qt::QueuedConnection);
     }
 }
 
@@ -107,13 +111,13 @@ void ServerWindows::error(const QString &message)
     ui->text_console->appendHtml("<pre style='color:#F22;'>"+message.toHtmlEscaped()+"</pre>");
 }
 
-void ServerWindows::disconnected(ClientSocket *client)
+void ServerWindows::disconnected(ClientSocket *client, QString reason)
 {
     QMutexLocker(&this->_lock);
     // Add a message for it
-    this->sendMessage(tr("%1 left the game").arg(client->name()));
+    this->sendMessage(tr("%1 left the game (%2)").arg(client->name(), reason));
 
-    emit disconnectedClient(client);
+    emit disconnectedClient(client, reason);
 
     // Update
     clients.remove(client->id());
@@ -165,7 +169,11 @@ void ServerWindows::sendMessage(const QString &playername, const QString &messag
     list[0] = playername;
     list[1] = message;
 
-    p->writePacket(_broadcast, list);
+    try{
+        p->writePacket(_broadcast, list);
+    }catch(...){
+        qDebug() << "Can't broadcast message";
+    }
 
     ui->text_chat->appendHtml("<b style='color:#6a6;'>&lt;"+playername.toHtmlEscaped()+"&gt;</b> "+message.toHtmlEscaped());
 }
@@ -173,12 +181,16 @@ void ServerWindows::sendMessage(const QString &playername, const QString &messag
 void ServerWindows::sendMessage(const QString &message)
 {
     QMutexLocker(&this->_lock);
-    Packet* p = PacketManager::serverPacket(0x01);
+    Packet* p = PacketManager::serverPacket(0x02);
 
     QVector<QVariant> list(1);
     list[0] = message;
 
-    p->writePacket(_broadcast, list);
+    try{
+        p->writePacket(_broadcast, list);
+    }catch(...){
+        qDebug() << "Can't broadcast message";
+    }
 
     ui->text_chat->appendHtml("<i>"+message.toHtmlEscaped()+"</i>");
 }

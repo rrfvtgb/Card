@@ -13,6 +13,8 @@ public:
 protected:
     void readHeader();
 
+    void initPacketHandle();
+
     // AbstractNetworkProtocol interface
 public slots:
     void read();

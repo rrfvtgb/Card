@@ -2,10 +2,13 @@
 
 #include <QDateTime>
 #include <QIODevice>
+#include <QDebug>
 
 #ifdef QTSCRIPTGLOBAL_H
 # include <QScriptValue>
 #endif
+
+#include "networkexception.h"
 
 Packet::Packet():
     Packet(0, QVector<int>())
@@ -49,15 +52,19 @@ QHash<QString, QVariant> Packet::readHeader(QIODevice *socket)
 
     // Tolerate 5s
     int delay = 5000;
-    int length = this->readuint16(socket, delay);
+    quint16 length = this->readuint16(socket, delay);
+    qDebug() << "[HEADER] Header length "<<length;
+    qDebug() << "[HEADER] Byte Available "<<socket->bytesAvailable();
 
-    for(int i; i<length; i++){
+    for(int i=0; i<length; i++){
         QString  name  = this->readString(socket, delay);
         int      type  = this->readuint8(socket, delay);
+        qDebug() << "[HEADER] type "<<type;
         QVariant value = this->private_read(type, delay, socket);
 
         header.insert(name, value);
     }
+    qDebug() << "[HEADER] Header read end "<<length;
 
     return header;
 }
@@ -72,6 +79,8 @@ void Packet::writeHeader(QIODevice *socket, QHash<QString, QVariant> header)
     this->write(data, (quint16) header.size());
 
     int type = 0;
+
+    qDebug() << "[HEADER WRITE] Header write "<<header.size();
 
     while(iterator != end){
         switch(iterator.value().type()){
@@ -93,10 +102,14 @@ void Packet::writeHeader(QIODevice *socket, QHash<QString, QVariant> header)
         }
 
         this->write(data, iterator.key());
+        this->write(data, (quint8) type);
         this->private_write(type, iterator.value(), data);
+        qDebug() << "[HEADER WRITE] Type : "<<type;
 
         ++iterator;
     }
+
+    qDebug() << "[HEADER WRITE] Header length : "<<data->length();
 
     this->packetReady(data, socket);
 }
@@ -161,7 +174,9 @@ void Packet::writePacket(QIODevice *socket, const QVector<QVariant> &data)
         }
 
         this->packetReady(packet, socket);
-    } // Else throw exception
+    } else {
+        throw NetworkException();
+    }
 }
 
 #ifdef QTSCRIPTGLOBAL_H
@@ -199,9 +214,6 @@ void Packet::writePacket(QIODevice *socket, const QScriptValue &data)
 
 void Packet::bytesToRead(QIODevice *socket, QIODevice *client)
 {
-    if(_read == NULL){
-        return; // Todo : throw exception
-    }
 
     int l = _argument.size();
 
@@ -227,7 +239,9 @@ void Packet::bytesToRead(QIODevice *socket, QIODevice *client)
         }
     }
 
-    this->_read(list, client);
+    if(_read != NULL){
+        this->_read(list, client);
+    }
 }
 
 QByteArray *Packet::emptyPacket(int reserveSize)
@@ -345,14 +359,15 @@ qint64 Packet::waitForByteAvailable(QIODevice *device, qint64 byte, qint64 max)
         qint64 delay = time + max; // Target time
 
         while(time < delay
-              && device->bytesAvailable() < byte){
+              && device->bytesAvailable() < byte
+              && (device->openMode() & QIODevice::ReadOnly) == QIODevice::ReadOnly ){
             device->waitForReadyRead(delay - time + 10);
             time = QDateTime::currentMSecsSinceEpoch();
         }
 
         if(device->bytesAvailable() < byte){
-            // TODO : Throw exception
-            return -1;
+            // Can't handle it
+            throw NetworkException();
         }
 
         // return time remaining

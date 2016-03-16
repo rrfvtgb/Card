@@ -37,7 +37,6 @@ void ServerList::on_display_server_itemSelectionChanged()
 
 void ServerList::on_button_join_clicked()
 {
-    this->saveList();
     if(ui->display_server->selectedItems().size() == 1){
         emit join(ui->display_server->selectedItems()[0]->text(2));
     }
@@ -45,13 +44,11 @@ void ServerList::on_button_join_clicked()
 
 void ServerList::on_button_host_clicked()
 {
-    this->saveList();
     emit host();
 }
 
 void ServerList::on_button_close_clicked()
 {
-    this->saveList();
     emit exit();
 }
 
@@ -103,6 +100,8 @@ void ServerList::dialog_accepted()
             item->setText(2, address);
         }
     }
+
+    this->saveList();
 }
 
 void ServerList::loadList()

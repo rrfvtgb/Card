@@ -6,7 +6,11 @@
 class Menu;
 class GameWidget;
 class ServerList;
+class Game;
+class Option;
+
 class QStackedWidget;
+class QMessageBox;
 
 class MainWindow : public QMainWindow
 {
@@ -16,7 +20,8 @@ public:
     enum Ui{
         MenuUi,
         ServerListUi,
-        GameUi
+        GameUi,
+        OptionUi
     };
 
     explicit MainWindow(QWidget *parent = 0);
@@ -45,10 +50,27 @@ private slots:
     void showServerList();
 
     /**
+     * @brief showServerList Set the view on the option menu
+     */
+    void showOption();
+
+    /**
      * @brief connectTo Try to connect to a specific server
      * @param address the server adress
      */
     void connectTo(QString address);
+
+    /**
+     * @brief cancelConnection Cancel current connection between client and server
+     */
+    void cancelConnection(int);
+
+    void connected();
+
+    /**
+     * @brief disconnected Remove game instance and return to servers list
+     */
+    void disconnected(QString reason);
 
 protected:
     /// Current Widget used in display
@@ -58,6 +80,17 @@ protected:
     Menu* _menu;
     ServerList* _list;
     GameWidget* _game;
+    Option* _option;
+
+    /**
+     * @brief _instance The game object
+     */
+    Game* _instance;
+
+    /**
+     * @brief _msgBox Display the connection status when connecting to server
+     */
+    QMessageBox* _msgBox;
 };
 
 #endif // MAINWINDOW_H

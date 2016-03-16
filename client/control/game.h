@@ -9,7 +9,7 @@ class QTcpSocket;
 class GameWidget;
 class AbstractNetworkProtocol;
 
-class Game : public QObject
+class Game : public QIODevice
 {
     Q_OBJECT
 public:
@@ -21,6 +21,9 @@ public:
     GameWidget *widget() const;
     void setWidget(GameWidget *widget);
 
+    void receiveMessage(QString message);
+    void receiveMessage(QString player, QString message);
+
 signals:
     /**
      * @brief closed This signal is emitted whenever the game end
@@ -28,6 +31,8 @@ signals:
      * @param reason The reason of the the end of the game
      */
     void closed(const QString& reason);
+
+    void connected();
 
 
 protected slots:
@@ -42,6 +47,8 @@ protected slots:
      * @param socketError The socket error that happend
      */
     void socketError(QAbstractSocket::SocketError socketError);
+
+    void sendMessage();
 
 protected:
     /**
@@ -58,6 +65,11 @@ protected:
      * @brief _protocol contains the method to parse the socket
      */
     AbstractNetworkProtocol* _protocol;
+
+    void loadProtocol();
+
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 maxlen);
 };
 
 #endif // GAME_H

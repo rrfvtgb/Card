@@ -39,10 +39,7 @@ public:
 signals:
     void closed(QMainWindow*);
     void newClient(ClientSocket*);
-    void disconnectedClient(ClientSocket*);
-
-protected slots:
-    void newConnection();
+    void disconnectedClient(ClientSocket*, QString reason);
 
 public slots:
     void log(const QString &message);
@@ -53,7 +50,8 @@ public slots:
     void sendMessage(const QString& message);
 
 protected slots:
-    void disconnected(ClientSocket*client);
+    void newConnection();
+    void disconnected(ClientSocket*client, QString reason);
 
 protected:
     void showEvent(QShowEvent *);

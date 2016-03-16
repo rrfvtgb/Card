@@ -5,23 +5,28 @@
 #include <ui/gamewidget.h>
 
 #include <QApplication>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QTabWidget>
 #include <QTcpSocket>
 #include <QUrl>
 
 Game::Game(QString address, QObject *parent) :
-    QObject(parent),
-    _socket(new QTcpSocket(this))
+    QIODevice(parent),
+    _socket(new QTcpSocket(this)),
+    _protocol(NULL)
 {
     /*
      * Connect Signal / Slot
      */
     //connect(_socket, SIGNAL(connected()), this, SLOT(deleteLater()));
     connect(_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)));
+    connect(_socket, SIGNAL(readyRead()), this, SLOT(read()));
 
     /*
      * Parse address and try to connect to it
      */
-    QUrl url(address);
+    QUrl url = QUrl::fromUserInput(address);
     _socket->connectToHost(url.host(), url.port(6112));
 }
 
@@ -43,36 +48,80 @@ GameWidget *Game::widget() const
 void Game::setWidget(GameWidget *widget)
 {
     _widget = widget;
+
+    QLineEdit* l = _widget->findChild<QLineEdit*>("input_chat");
+    connect(l, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
+}
+
+void Game::receiveMessage(QString message)
+{
+    QTabWidget* l = _widget->findChild<QTabWidget*>("tabWidget");
+    QPlainTextEdit* chat = qobject_cast<QPlainTextEdit*>( l->widget(0) );
+    chat->appendHtml("<i>"+message.toHtmlEscaped()+"</i>");
+}
+
+void Game::receiveMessage(QString player, QString message)
+{
+    QTabWidget* l = _widget->findChild<QTabWidget*>("tabWidget");
+    QPlainTextEdit* chat = qobject_cast<QPlainTextEdit*>( l->widget(0) );
+    chat->appendHtml("<b>"+player.toHtmlEscaped()+"</b> <span>"+message.toHtmlEscaped()+"</span>");
 }
 
 void Game::read()
 {
     if(_protocol == NULL){
+        this->loadProtocol();
 
-        // Test if the first byte are the application name
-        QByteArray application =
-                QApplication::applicationName().toLocal8Bit();
-
-        // Not enough byte to read ?
-        if(_socket->bytesAvailable() < application.size()) return;
-        QByteArray data = _socket->read(application.size());
-
-        if(data != application){
-            OldProtocol* protocol = new OldProtocol(this);
-            protocol->setBuffer(QString::fromUtf8(data));
-            _protocol = protocol;
-
-            qDebug() << "Compatiblity Mode";
-        }else{
-            _protocol = new FancyProtocol(this);
-        }
-
-        connect(_socket, SIGNAL(readyRead()), this, SLOT(dataReady()));
+        // Can't see which protocol yet
+        if(_protocol == NULL) return;
     }
 
     while(_socket->bytesAvailable() > 0){
         _protocol->read();
     }
+}
+
+void Game::loadProtocol()
+{
+    // Test if the first byte are the application name
+    QByteArray application =
+            QApplication::applicationName().toLocal8Bit();
+
+    // Not enough byte to read ?
+    if(_socket->bytesAvailable() < application.size()) return;
+    QByteArray data = _socket->read(application.size());
+
+    if(data != application){
+        OldProtocol* protocol = new OldProtocol(this);
+        protocol->setBuffer(QString::fromUtf8(data));
+        _protocol = protocol;
+
+        qDebug() << "Compatiblity Mode";
+    }else{
+        _protocol = new FancyProtocol(this);
+    }
+    emit connected();
+}
+
+qint64 Game::readData(char *data, qint64 maxlen)
+{
+    return _socket->read(data, maxlen);
+}
+
+qint64 Game::writeData(const char *data, qint64 maxlen)
+{
+    return _socket->write(data, maxlen);
+}
+
+void Game::sendMessage()
+{
+    if(_protocol == NULL){
+        return;
+    }
+
+    QLineEdit* l = _widget->findChild<QLineEdit*>("input_chat");
+    _protocol->writeMessage(l->text());
+    l->clear();
 }
 
 void Game::socketError(QAbstractSocket::SocketError socketError)
