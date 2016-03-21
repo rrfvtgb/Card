@@ -1,6 +1,7 @@
 #include "serverlist.h"
 #include "ui_serverlist.h"
 
+#include "serverconnection.h"
 #include "serverinfo.h"
 
 #include <QSettings>
@@ -38,7 +39,17 @@ void ServerList::on_display_server_itemSelectionChanged()
 void ServerList::on_button_join_clicked()
 {
     if(ui->display_server->selectedItems().size() == 1){
-        emit join(ui->display_server->selectedItems()[0]->text(2));
+        QTreeWidgetItem* item = ui->display_server->selectedItems()[0];
+        ServerConnection* dialog = new ServerConnection(item->text(0), this);
+
+        if(dialog->exec()){
+            int gamemode = dialog->gamemode();
+            QString deckname = dialog->deckname();
+
+            emit join(item->text(2), gamemode, deckname);
+        }
+
+        delete dialog;
     }
 }
 
@@ -134,4 +145,9 @@ void ServerList::saveList()
         data.setValue("server/"+item->text(0),
                       item->text(2));
     }
+}
+
+void ServerList::on_display_server_doubleClicked(const QModelIndex &)
+{
+    this->on_button_join_clicked();
 }

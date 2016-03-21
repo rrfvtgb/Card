@@ -30,7 +30,6 @@ void WindowController::load()
     foreach(QString option, options){
         if(!config->contains(option)){
             containsAll = false;
-            qDebug() << "Option missing : " << option;
         }
     }
 
@@ -43,7 +42,6 @@ void WindowController::load()
 
 void WindowController::startServer()
 {
-    qDebug() << "Starting server...";
     serv->show();
 }
 

@@ -20,7 +20,7 @@ public:
     ~ServerList();
 
 signals:
-    void join(const QString& address);
+    void join(const QString& address, int gamemode, const QString& deckname);
 
     void exit();
     void host();
@@ -41,6 +41,8 @@ private slots:
     void dialog_accepted();
 
     void on_button_delete_clicked();
+
+    void on_display_server_doubleClicked(const QModelIndex &);
 
 public slots:
     void loadList();

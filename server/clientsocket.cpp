@@ -62,15 +62,12 @@ void ClientSocket::read()
         if(!_header){
             Packet p;
             QHash<QString, QVariant> h(p.readHeader(_socket));
-            QHash<QString, QVariant>::iterator it = h.begin();
-            while(it != h.end()){
-                qDebug() << "[HEADER] "<<it.key()<<" = "<<it.value().toString();
-                it++;
-            }
-            qDebug() << "[HEADER] End of header";
 
             if(h.find("username") != h.end()){
                 this->setName(h["username"].toString());
+                _server->sendMessage(tr("%1 joined the game").arg(_name));
+            }else{
+                _server->sendMessage(tr("A new player joined the game"));
             }
             _header = true;
         }

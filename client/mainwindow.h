@@ -58,7 +58,7 @@ private slots:
      * @brief connectTo Try to connect to a specific server
      * @param address the server adress
      */
-    void connectTo(QString address);
+    void connectTo(QString address, int gamemode, QString deckname);
 
     /**
      * @brief cancelConnection Cancel current connection between client and server

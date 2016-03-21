@@ -1,5 +1,6 @@
 #include "cardwidget.h"
 
+#include "adjustablelayout.h"
 #include "cardlayout.h"
 
 //#include <QGridLayout>
@@ -7,8 +8,8 @@
 
 CardWidget::CardWidget(QWidget *parent) : QWidget(parent)
 {
-    //QGridLayout *layout = new QGridLayout(this);
-    CardLayout *layout = new CardLayout(this);
+    AdjustableLayout* l = new AdjustableLayout(this);
+    l->setColumn(5);
 
-    layout->setSpacing(0);
+    l->setSpacing(0);
 }

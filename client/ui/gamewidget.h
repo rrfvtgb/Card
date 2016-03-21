@@ -7,6 +7,7 @@ namespace Ui {
 class GameWidget;
 }
 
+class CardWidget;
 class MainWindows;
 
 class GameWidget : public QWidget
@@ -19,6 +20,8 @@ public:
 
 private:
     Ui::GameWidget *ui;
+
+    CardWidget* _cardWidget;
 };
 
 

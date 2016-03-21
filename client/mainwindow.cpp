@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_menu, SIGNAL(exit()), this, SLOT(close()) );
 
     connect(_list, SIGNAL(exit()), this, SLOT(showMenu()));
-    connect(_list, SIGNAL(join(QString)), this, SLOT(connectTo(QString)));
+    connect(_list, SIGNAL(join(QString,int,QString)), this, SLOT(connectTo(QString,int,QString)));
 
     connect(_option, SIGNAL(done()), this, SLOT(showMenu()));
 }
@@ -83,7 +83,7 @@ void MainWindow::showOption()
     this->setView(OptionUi);
 }
 
-void MainWindow::connectTo(QString address)
+void MainWindow::connectTo(QString address, int gamemode, QString deckname)
 {
     if(_instance != NULL){
         delete _instance;

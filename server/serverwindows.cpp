@@ -71,8 +71,6 @@ void ServerWindows::newConnection()
 {
     QMutexLocker(&this->_lock);
     while(server->hasPendingConnections()){
-        this->sendMessage(tr("A new player joined the game"));
-
         QTcpSocket* socket = server->nextPendingConnection();
         ClientSocket* client = new ClientSocket(socket);
 
@@ -138,7 +136,6 @@ void ServerWindows::showEvent(QShowEvent *)
     _loaded = server->listen(QHostAddress::Any, _config->value("port").toInt());
 
     if(!_loaded){
-        qDebug() << "Can't start the server, exiting now...";
         this->close();
     }else{
         ui->statusbar->showMessage("Server ready!");

@@ -53,18 +53,14 @@ QHash<QString, QVariant> Packet::readHeader(QIODevice *socket)
     // Tolerate 5s
     int delay = 5000;
     quint16 length = this->readuint16(socket, delay);
-    qDebug() << "[HEADER] Header length "<<length;
-    qDebug() << "[HEADER] Byte Available "<<socket->bytesAvailable();
 
     for(int i=0; i<length; i++){
         QString  name  = this->readString(socket, delay);
         int      type  = this->readuint8(socket, delay);
-        qDebug() << "[HEADER] type "<<type;
         QVariant value = this->private_read(type, delay, socket);
 
         header.insert(name, value);
     }
-    qDebug() << "[HEADER] Header read end "<<length;
 
     return header;
 }
@@ -79,8 +75,6 @@ void Packet::writeHeader(QIODevice *socket, QHash<QString, QVariant> header)
     this->write(data, (quint16) header.size());
 
     int type = 0;
-
-    qDebug() << "[HEADER WRITE] Header write "<<header.size();
 
     while(iterator != end){
         switch(iterator.value().type()){
@@ -104,12 +98,9 @@ void Packet::writeHeader(QIODevice *socket, QHash<QString, QVariant> header)
         this->write(data, iterator.key());
         this->write(data, (quint8) type);
         this->private_write(type, iterator.value(), data);
-        qDebug() << "[HEADER WRITE] Type : "<<type;
 
         ++iterator;
     }
-
-    qDebug() << "[HEADER WRITE] Header length : "<<data->length();
 
     this->packetReady(data, socket);
 }

@@ -34,7 +34,9 @@ SOURCES += client/builder/main.cpp \
     client/control/abstractnetworkprotocol.cpp \
     client/control/fancyprotocol.cpp \
     client/ui/serverinfo.cpp \
-    client/ui/option.cpp
+    client/ui/option.cpp \
+    client/view/adjustablelayout.cpp \
+    client/ui/serverconnection.cpp
 
 HEADERS  += client/mainwindow.h \
     client/view/cardwidget.h \
@@ -53,14 +55,17 @@ HEADERS  += client/mainwindow.h \
     client/control/abstractnetworkprotocol.h \
     client/control/fancyprotocol.h \
     client/ui/serverinfo.h \
-    client/ui/option.h
+    client/ui/option.h \
+    client/view/adjustablelayout.h \
+    client/ui/serverconnection.h
 
 FORMS    += \
     client/ui/gamewidget.ui \
     client/ui/menu.ui \
     client/ui/serverlist.ui \
     client/ui/serverinfo.ui \
-    client/ui/option.ui
+    client/ui/option.ui \
+    client/ui/serverconnection.ui
 
 DISTFILES +=
 

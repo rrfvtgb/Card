@@ -3,9 +3,12 @@
 
 #include <QPlainTextEdit>
 
+#include <view/cardwidget.h>
+
 GameWidget::GameWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::GameWidget)
+    ui(new Ui::GameWidget),
+    _cardWidget(new CardWidget)
 {
     ui->setupUi(this);
 
@@ -18,6 +21,8 @@ GameWidget::GameWidget(QWidget *parent) :
     ui->tabWidget->clear();
     ui->tabWidget->insertTab(0, chat, tr("Chat"));
     ui->tabWidget->insertTab(1, console, tr("Console"));
+
+    ui->cardArea->setWidget(_cardWidget);
 }
 
 GameWidget::~GameWidget()
