@@ -1,6 +1,6 @@
 #include "clientsocket.h"
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QTcpSocket>
 #include <networkexception.h>
 
@@ -16,18 +16,11 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QIODevice(pare
         connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)), Qt::QueuedConnection);
 
         // HEADER
-        socket->write((QApplication::applicationName()
-                      +" v"+QApplication::applicationVersion()
+        socket->write((QCoreApplication::applicationName()
+                      +" v"+QCoreApplication::applicationVersion()
                       +"\n").toLocal8Bit());
 
         QHash<QString, QVariant> header;
-
-        QHash<QString, QVariant>::iterator it = header.begin();
-        while(it != header.end()){
-            qDebug() << "[HEADER WRITE] "<<it.key()<<" = "<<it.value().toString();
-            it++;
-        }
-        qDebug()<<"Header write ended";
 
         Packet p;
         p.writeHeader(socket, header);
@@ -42,7 +35,6 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QIODevice(pare
 
 ClientSocket::~ClientSocket()
 {
-    qDebug() << this->_id << " delete";
     delete _socket;
 }
 

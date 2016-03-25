@@ -41,13 +41,6 @@ GameEngine::GameEngine(ServerWindows *server) : QObject(server),
     _engine(new QScriptEngine),
     _server(server)
 {
-    // Register all object
-    this->initMain();
-    this->initCards();
-    this->initPacket();
-
-    // Call script init
-    this->scriptInit();
 }
 
 ServerWindows *GameEngine::server() const
@@ -63,6 +56,17 @@ void GameEngine::setServer(ServerWindows *server)
 QScriptValue GameEngine::gameObject()
 {
     return _engine->globalObject().property("game");
+}
+
+void GameEngine::load()
+{
+    // Register all object
+    this->initMain();
+    this->initCards();
+    this->initPacket();
+
+    // Call script init
+    this->scriptInit();
 }
 
 void GameEngine::connectedClient(ClientSocket *client)

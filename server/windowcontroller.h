@@ -4,7 +4,10 @@
 #include <QObject>
 #include <QSettings>
 
+#ifndef SERVER_CONSOLE
 class OptionWindows;
+#endif
+
 class ServerWindows;
 
 class QMainWindow;
@@ -23,12 +26,17 @@ public slots:
     void startServer();
     void openOptions();
 
+#ifndef SERVER_CONSOLE
     void windowsClosed(QMainWindow* windows);
+#endif
 
 protected:
     QSettings* config;
-    OptionWindows* opt;
     ServerWindows* serv;
+
+#ifndef SERVER_CONSOLE
+    OptionWindows* opt;
+#endif
 };
 
 #endif // WINDOWCONTROLLER_H

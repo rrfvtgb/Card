@@ -1,13 +1,16 @@
 #ifndef SERVERWINDOWS_H
 #define SERVERWINDOWS_H
 
-#include <QMainWindow>
 #include <QHash>
-#include <QMutex>
+#include <QObject>
+
+#ifndef SERVER_CONSOLE
+# include <QMainWindow>
 
 namespace Ui {
 class ServerWindows;
 }
+#endif
 
 class QSettings;
 class QTcpServer;
@@ -17,7 +20,13 @@ class BroadcastSocket;
 class GameEngine;
 class CommandHelper;
 
+class QIODevice;
+
+#ifndef SERVER_CONSOLE
 class ServerWindows : public QMainWindow
+#else
+class ServerWindows : public QObject
+#endif
 {
     Q_OBJECT
 public:
@@ -36,8 +45,13 @@ public:
 
     QIODevice *getBroadcastClient() const;
 
+    void load();
+
 signals:
+#ifndef SERVER_CONSOLE
     void closed(QMainWindow*);
+#endif
+
     void newClient(ClientSocket*);
     void disconnectedClient(ClientSocket*, QString reason);
 
@@ -54,10 +68,13 @@ protected slots:
     void disconnected(ClientSocket*client, QString reason);
 
 protected:
+#ifndef SERVER_CONSOLE
     void showEvent(QShowEvent *);
     void closeEvent(QCloseEvent *);
 
     Ui::ServerWindows *ui;
+#endif
+
     QSettings* _config;
     QTcpServer* server;
 
@@ -68,14 +85,13 @@ protected:
     GameEngine* game;
     bool _loaded;
 
-    QMutex _lock;
-    QMutex _broadcastLock;
-
     CommandHelper* _command;
 
 
+#ifndef SERVER_CONSOLE
 private slots:
     void on_input_chat_returnPressed();
+#endif
 };
 
 #endif // SERVERWINDOWS_H
