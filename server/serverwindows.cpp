@@ -92,7 +92,7 @@ void ServerWindows::newConnection()
 #ifndef SERVER_CONSOLE
         ui->statusbar->showMessage(tr("Connected client: %1").arg(clients.size()));
 #else
-        qDebug() << tr("Connected client: %1").arg(clients.size());
+        qDebug() << tr("[INFO]  Connected client: %1").arg(clients.size());
 #endif
 
         clientID ++;
@@ -143,7 +143,7 @@ void ServerWindows::disconnected(ClientSocket *client, QString reason)
 #ifndef SERVER_CONSOLE
     ui->statusbar->showMessage(tr("Connected client: %1").arg(clients.size()));
 #else
-     qDebug() << tr("Connected client: %1").arg(clients.size());
+     qDebug() << tr("[INFO]  Connected client: %1").arg(clients.size());
 #endif
 
     client->deleteLater();
@@ -184,7 +184,8 @@ void ServerWindows::load()
 #ifndef SERVER_CONSOLE
         ui->statusbar->showMessage(tr("Server ready!"));
 #else
-        qDebug() << tr("Server ready!");
+        game->load();
+        qDebug() << tr(" [INFO]  Server ready!");
 #endif
     }
 }
@@ -211,7 +212,7 @@ void ServerWindows::sendMessage(const QString &playername, const QString &messag
 #ifndef SERVER_CONSOLE
     ui->text_chat->appendHtml("<b style='color:#6a6;'>&lt;"+playername.toHtmlEscaped()+"&gt;</b> "+message.toHtmlEscaped());
 #else
-    qDebug() << tr("[CHAT]  %1:%2").arg(playername, message);
+    qDebug() << tr("[CHAT]  %1: %2").arg(playername, message);
 #endif
 }
 

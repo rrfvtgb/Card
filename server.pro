@@ -8,9 +8,7 @@ QT       += core gui network script
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += SERVER_CONSOLE
-
-TARGET = CardServer
+TARGET = server
 TEMPLATE = app
 
 SOURCES += server/main.cpp\
@@ -32,12 +30,12 @@ include($$PWD/data/script.pri)
 include($$PWD/option.pri)
 
 CONFIG(SERVER_CONSOLE){
-    DEFINES += SERVER_CONSOLE
-    QT -= gui
-
-
-    greaterThan(QT_MAJOR_VERSION, 4): QT -= widgets
     message("Console mode only")
+
+    DEFINES += SERVER_CONSOLE
+    QT -= gui widgets
+
+    CONFIG += console
 }
 
 !CONFIG(SERVER_CONSOLE){

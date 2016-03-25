@@ -34,7 +34,9 @@ WindowController::~WindowController()
 void WindowController::load()
 {
     QStringList options = QString("port autohost scriptfolder").split(" ");
+#ifndef SERVER_CONSOLE
     bool containsAll = true;
+#endif
 
     foreach(QString option, options){
         if(!config->contains(option)){
@@ -42,7 +44,9 @@ void WindowController::load()
             containsAll = false;
 #else
             QTextStream s(stdin);
-            qDebug() << option << "? ";
+            QTextStream ts( stdout );
+
+            ts << option << "? ";
             QString value = s.readLine();
 
             config->setValue(option, value);
@@ -50,11 +54,15 @@ void WindowController::load()
         }
     }
 
+#ifndef SERVER_CONSOLE
     if(containsAll && config->value("autohost").toBool()){
         this->startServer();
     }else{
         this->openOptions();
     }
+#else
+    this->startServer();
+#endif
 }
 
 void WindowController::startServer()

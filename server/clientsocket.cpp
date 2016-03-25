@@ -22,13 +22,6 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QIODevice(pare
 
         QHash<QString, QVariant> header;
 
-        QHash<QString, QVariant>::iterator it = header.begin();
-        while(it != header.end()){
-            qDebug() << "[HEADER WRITE] "<<it.key()<<" = "<<it.value().toString();
-            it++;
-        }
-        qDebug()<<"Header write ended";
-
         Packet p;
         p.writeHeader(socket, header);
 
@@ -42,7 +35,6 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QIODevice(pare
 
 ClientSocket::~ClientSocket()
 {
-    qDebug() << this->_id << " delete";
     delete _socket;
 }
 

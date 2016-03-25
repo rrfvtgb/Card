@@ -20,6 +20,8 @@ public:
 
     QScriptValue gameObject();
 
+    void load();
+
 signals:
 
 public slots:
