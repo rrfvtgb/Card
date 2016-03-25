@@ -103,6 +103,19 @@ void MainWindow::connectTo(QString address, int gamemode, QString deckname)
     _instance = new Game(address, this);
     _instance->setWidget(_game);
 
+    switch(gamemode){
+    case 1:
+        _instance->setMode(Game::DeckBuilder);
+        break;
+    case 2:
+        _instance->setMode(Game::Spectator);
+        break;
+    case 0:
+    default:
+        _instance->setMode(Game::Normal);
+        break;
+    }
+
     connect(_instance, SIGNAL(closed(QString)), this, SLOT(disconnected(QString)));
     connect(_instance, SIGNAL(connected()), this, SLOT(connected()));
 
@@ -111,18 +124,14 @@ void MainWindow::connectTo(QString address, int gamemode, QString deckname)
 
 void MainWindow::cancelConnection(int)
 {
-    if(_instance != NULL){
-        _instance->socket()->disconnectFromHost();
-        if (_instance->socket()->state() == QAbstractSocket::UnconnectedState ||
-                _instance->socket()->waitForDisconnected(1000))
-                qDebug("Disconnected!");
-        _instance->deleteLater();
-        _instance = NULL;
-    }
-
     if(_msgBox != NULL){
         _msgBox->deleteLater();
         _msgBox = NULL;
+    }
+
+    if(_instance != NULL){
+        _instance->deleteLater();
+        _instance = NULL;
     }
 
     this->showServerList();

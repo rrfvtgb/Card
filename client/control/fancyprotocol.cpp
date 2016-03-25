@@ -39,13 +39,7 @@ void FancyProtocol::readHeader()
     QSettings options("option.ini", QSettings::IniFormat);
 
     config.insert("username", options.value("username"));
-    config.insert("mode", 1);
-
-    QHash<QString, QVariant>::iterator it = config.begin();
-    while(it != config.end()){
-        qDebug() << "[HEADER WRITE] "<<it.key()<<" = "<<it.value().toString();
-        it++;
-    }
+    config.insert("mode", _game->mode());
 
     p.writeHeader(_game->socket(), config);
 
@@ -57,7 +51,6 @@ void FancyProtocol::readHeader()
 
         QHash<QString, QVariant>::iterator it = h.begin();
         while(it != h.end()){
-            qDebug() << "[HEADER] "<<it.key()<<" = "<<it.value().toString();
             it++;
         }
     }catch(NetworkException&){

@@ -124,6 +124,16 @@ void Game::sendMessage()
     l->clear();
 }
 
+Game::GameMode Game::mode() const
+{
+    return _mode;
+}
+
+void Game::setMode(const GameMode &mode)
+{
+    _mode = mode;
+}
+
 void Game::socketError(QAbstractSocket::SocketError socketError)
 {
     switch(socketError){

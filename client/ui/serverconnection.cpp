@@ -18,7 +18,7 @@ ServerConnection::ServerConnection(QString serverName, QWidget *parent) :
 
     foreach(QString key, l){
         if(key.startsWith(serverName+"/deck/")){
-            ui->comboBox_deck->addItem(key.mid(serverName.length()+6));
+            ui->comboBox_deck->addItem(key.mid(serverName.length()+6), key);
             hasDeck = true;
         }
     }
@@ -50,7 +50,7 @@ int ServerConnection::gamemode()
 QString ServerConnection::deckname()
 {
     if(ui->comboBox_deck->currentIndex() != 0)
-        return ui->comboBox_deck->currentText();
+        return ui->comboBox_deck->currentData().toString();
     return QString();
 }
 

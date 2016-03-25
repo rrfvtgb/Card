@@ -13,6 +13,13 @@ class Game : public QIODevice
 {
     Q_OBJECT
 public:
+    enum GameMode{
+        Normal      = 0x0,
+        DeckBuilder = 0x1,
+        Spectator   = 0x2
+    };
+
+
     explicit Game(QString address, QObject *parent = 0);
     ~Game();
 
@@ -23,6 +30,9 @@ public:
 
     void receiveMessage(QString message);
     void receiveMessage(QString player, QString message);
+
+    GameMode mode() const;
+    void setMode(const GameMode &mode);
 
 signals:
     /**
@@ -66,8 +76,16 @@ protected:
      */
     AbstractNetworkProtocol* _protocol;
 
+    GameMode _mode;
+
+    /**
+     * @brief loadProtocol Load the correct protocol according to the first data sent
+     */
     void loadProtocol();
 
+    /*
+     * Reinplemented from QIODevice
+     */
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 maxlen);
 };
