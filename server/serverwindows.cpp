@@ -1,5 +1,8 @@
 #include "serverwindows.h"
-#include "ui_serverwindows.h"
+
+#ifndef SERVER_CONSOLE
+# include "ui_serverwindows.h"
+#endif
 
 #include "broadcastsocket.h"
 #include "clientsocket.h"
@@ -22,15 +25,20 @@ ServerWindows::ServerWindows(QWidget *parent):
 {
 }
 
-ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) : QMainWindow(parent),
+ServerWindows::ServerWindows(QSettings *conf, QWidget *parent) :
+#ifndef SERVER_CONSOLE
+    QMainWindow(parent),
     ui(new Ui::ServerWindows),
+#else
+    QObject((QObject*) parent),
+#endif
     _config(conf),
     _broadcast(new BroadcastSocket(this)),
-    _lock(),
-    _broadcastLock(),
     _command(new CommandHelper())
 {
+#ifndef SERVER_CONSOLE
     ui->setupUi(this);
+#endif
 
     ClientSocket::initPacketHandle();
 
@@ -47,12 +55,14 @@ ServerWindows::~ServerWindows()
 {
     delete game;
     delete server;
+
+#ifndef SERVER_CONSOLE
     delete ui;
+#endif
 }
 
 void ServerWindows::broadcast(const QByteArray &data)
 {
-    QMutexLocker(&this->_broadcastLock);
     foreach(ClientSocket* client, clients){
         client->write(data);
     }
@@ -60,7 +70,6 @@ void ServerWindows::broadcast(const QByteArray &data)
 
 qint64 ServerWindows::broadcast(const char *data, qint64 maxlen)
 {
-    QMutexLocker(&this->_broadcastLock);
     foreach(ClientSocket* client, clients){
         client->write(data, maxlen);
     }
@@ -69,7 +78,6 @@ qint64 ServerWindows::broadcast(const char *data, qint64 maxlen)
 
 void ServerWindows::newConnection()
 {
-    QMutexLocker(&this->_lock);
     while(server->hasPendingConnections()){
         QTcpSocket* socket = server->nextPendingConnection();
         ClientSocket* client = new ClientSocket(socket);
@@ -81,7 +89,11 @@ void ServerWindows::newConnection()
         client->setName(tr("Player-%1").arg(clientID));
         client->setServer(this);
 
+#ifndef SERVER_CONSOLE
         ui->statusbar->showMessage(tr("Connected client: %1").arg(clients.size()));
+#else
+        qDebug() << tr("Connected client: %1").arg(clients.size());
+#endif
 
         clientID ++;
 
@@ -93,25 +105,33 @@ void ServerWindows::newConnection()
 
 void ServerWindows::log(const QString &message)
 {
-    QMutexLocker(&this->_lock);
+#ifndef SERVER_CONSOLE
     ui->text_console->appendPlainText(message);
+#else
+    qDebug() << tr("[LOG]   %1").arg(message);
+#endif
 }
 
 void ServerWindows::warn(const QString &message)
 {
-    QMutexLocker(&this->_lock);
+#ifndef SERVER_CONSOLE
     ui->text_console->appendHtml("<pre style='color:#FB3;'>"+message.toHtmlEscaped()+"</pre>");
+#else
+    qDebug() << tr("[WARN]  %1").arg(message);
+#endif
 }
 
 void ServerWindows::error(const QString &message)
 {
-    QMutexLocker(&this->_lock);
+#ifndef SERVER_CONSOLE
     ui->text_console->appendHtml("<pre style='color:#F22;'>"+message.toHtmlEscaped()+"</pre>");
+#else
+    qDebug() << tr("[ERROR] %1").arg(message);
+#endif
 }
 
 void ServerWindows::disconnected(ClientSocket *client, QString reason)
 {
-    QMutexLocker(&this->_lock);
     // Add a message for it
     this->sendMessage(tr("%1 left the game (%2)").arg(client->name(), reason));
 
@@ -119,16 +139,37 @@ void ServerWindows::disconnected(ClientSocket *client, QString reason)
 
     // Update
     clients.remove(client->id());
+
+#ifndef SERVER_CONSOLE
     ui->statusbar->showMessage(tr("Connected client: %1").arg(clients.size()));
+#else
+     qDebug() << tr("Connected client: %1").arg(clients.size());
+#endif
 
     client->deleteLater();
 }
 
+#ifndef SERVER_CONSOLE
 void ServerWindows::showEvent(QShowEvent *)
+{
+    this->load();
+}
+
+void ServerWindows::closeEvent(QCloseEvent *)
+{
+    emit closed(this);
+}
+#endif
+
+QIODevice *ServerWindows::getBroadcastClient() const
+{
+    return _broadcast;
+}
+
+void ServerWindows::load()
 {
     if(_loaded) return;
 
-    QMutexLocker(&this->_lock);
     clientID = 0;
 
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
@@ -136,20 +177,16 @@ void ServerWindows::showEvent(QShowEvent *)
     _loaded = server->listen(QHostAddress::Any, _config->value("port").toInt());
 
     if(!_loaded){
+#ifndef SERVER_CONSOLE
         this->close();
+#endif
     }else{
-        ui->statusbar->showMessage("Server ready!");
+#ifndef SERVER_CONSOLE
+        ui->statusbar->showMessage(tr("Server ready!"));
+#else
+        qDebug() << tr("Server ready!");
+#endif
     }
-}
-
-void ServerWindows::closeEvent(QCloseEvent *)
-{
-    emit closed(this);
-}
-
-QIODevice *ServerWindows::getBroadcastClient() const
-{
-    return _broadcast;
 }
 
 QHash<int, ClientSocket*> ServerWindows::getClients() const
@@ -159,7 +196,6 @@ QHash<int, ClientSocket*> ServerWindows::getClients() const
 
 void ServerWindows::sendMessage(const QString &playername, const QString &message)
 {
-    QMutexLocker(&this->_lock);
     Packet* p = PacketManager::serverPacket(0x01);
 
     QVector<QVariant> list(2);
@@ -172,12 +208,15 @@ void ServerWindows::sendMessage(const QString &playername, const QString &messag
         qDebug() << "Can't broadcast message";
     }
 
+#ifndef SERVER_CONSOLE
     ui->text_chat->appendHtml("<b style='color:#6a6;'>&lt;"+playername.toHtmlEscaped()+"&gt;</b> "+message.toHtmlEscaped());
+#else
+    qDebug() << tr("[CHAT]  %1:%2").arg(playername, message);
+#endif
 }
 
 void ServerWindows::sendMessage(const QString &message)
 {
-    QMutexLocker(&this->_lock);
     Packet* p = PacketManager::serverPacket(0x02);
 
     QVector<QVariant> list(1);
@@ -189,7 +228,11 @@ void ServerWindows::sendMessage(const QString &message)
         qDebug() << "Can't broadcast message";
     }
 
+#ifndef SERVER_CONSOLE
     ui->text_chat->appendHtml("<i>"+message.toHtmlEscaped()+"</i>");
+#else
+    qDebug() << tr("[INFO]  %1").arg(message);
+#endif
 }
 
 QSettings *ServerWindows::config() const
@@ -202,6 +245,7 @@ void ServerWindows::setConfig(QSettings *config)
     _config = config;
 }
 
+#ifndef SERVER_CONSOLE
 void ServerWindows::on_input_chat_returnPressed()
 {
     QString message = ui->input_chat->text();
@@ -211,7 +255,6 @@ void ServerWindows::on_input_chat_returnPressed()
         message.remove(0, 1);
 
         QVariant result = _command->execute(message);
-        QMutexLocker(&this->_lock);
 
         if(result.isNull()){
             ui->text_chat->appendHtml(tr("<i>Unknow command</i>"));
@@ -222,3 +265,4 @@ void ServerWindows::on_input_chat_returnPressed()
         this->sendMessage("Server", message);
     }
 }
+#endif

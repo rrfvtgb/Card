@@ -1,6 +1,6 @@
 #include "clientsocket.h"
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QTcpSocket>
 #include <networkexception.h>
 
@@ -16,8 +16,8 @@ ClientSocket::ClientSocket(QTcpSocket *socket, QObject *parent) : QIODevice(pare
         connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)), Qt::QueuedConnection);
 
         // HEADER
-        socket->write((QApplication::applicationName()
-                      +" v"+QApplication::applicationVersion()
+        socket->write((QCoreApplication::applicationName()
+                      +" v"+QCoreApplication::applicationVersion()
                       +"\n").toLocal8Bit());
 
         QHash<QString, QVariant> header;
