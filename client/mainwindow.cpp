@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QTcpSocket>
+#include <QSettings>
 
 #include <control/game.h>
 
@@ -24,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
     _msgBox(NULL)
 {
     this->setView(MenuUi);
-    this->setBaseSize(640, 480);
 
     this->setCentralWidget(_view);
 
@@ -36,6 +36,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_list, SIGNAL(join(QString,int,QString)), this, SLOT(connectTo(QString,int,QString)));
 
     connect(_option, SIGNAL(done()), this, SLOT(showMenu()));
+
+
+    QSettings settings("config.ini", QSettings::IniFormat);
+
+    if(settings.contains("geometry")){
+        this->restoreGeometry(settings.value("geometry").toByteArray());
+    }
 }
 
 void MainWindow::setView(MainWindow::Ui type)
@@ -155,4 +162,11 @@ void MainWindow::disconnected(QString reason)
         _msgBox->setText(reason);
         this->cancelConnection(_msgBox->exec());
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings("config.ini", QSettings::IniFormat);
+    settings.setValue("geometry", saveGeometry());
+    QWidget::closeEvent(event);
 }

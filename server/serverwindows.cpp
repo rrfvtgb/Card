@@ -185,7 +185,7 @@ void ServerWindows::load()
         ui->statusbar->showMessage(tr("Server ready!"));
 #else
         game->load();
-        qDebug() << tr(" [INFO]  Server ready!");
+        qDebug() << tr("[INFO]  Server ready!");
 #endif
     }
 }

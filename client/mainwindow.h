@@ -91,6 +91,11 @@ protected:
      * @brief _msgBox Display the connection status when connecting to server
      */
     QMessageBox* _msgBox;
+
+    /**
+     * @brief closeEvent Save data about the windows when it close
+     */
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H
