@@ -8,7 +8,11 @@
 
 int main(int argc, char *argv[])
 {
+#ifndef SERVER_CONSOLE
+    QApplication a(argc, argv);
+#else
     QCoreApplication a(argc, argv);
+#endif
     WindowController c;
     c.load();
 
